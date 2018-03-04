@@ -9,8 +9,8 @@ function beginScript() {
     
     //highlightUnreadedArticles();
     //setupRowButtons();
-    delay = getRandomArbitrary(15000, 30000);
-    setInterval(identifyArticleChange, delay)
+    delay = getRandomArbitrary(4000, 12000);
+    setInterval(identifyArticleChange, delay);
     // identifyArticleChange();
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
@@ -44,7 +44,7 @@ function identifyArticleChange(){
     ]
   };
 
-  returnRandomSubGroup(unreadArticles);
+  unreadedArticles = returnOneOf(unreadArticles);
 
   chrome.runtime.sendMessage({
     unreadArticles: unreadArticles
@@ -84,6 +84,30 @@ function returnRandomSubGroup(articles){
       counter++;
     }
     return selectedHrefs;
+}
+
+function returnOneOf(articles){
+  
+  
+  var index = [];
+
+  // build the index
+  for (var x in articles.hrefs) {
+    index.push(x);
+  }
+
+  // sort the index
+  index.sort(function (a, b) {    
+    return a == b ? 0 : (a > b ? 1 : -1); 
+  }); 
+
+  selectedHref = []
+  randomNumber = getRandomArbitrary(0,5);
+
+  articles.hrefs.splice(randomNumber, 1);
+  selectedHref = articles.hrefs[index[randomNumber]]
+  console.log(JSON.stringify(articles, null, 4));
+  return selectedHref;
 }
 
 function getRandomArbitrary(min, max) {
