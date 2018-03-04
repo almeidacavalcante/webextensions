@@ -105,9 +105,9 @@ function returnOneOf(articles){
   randomNumber = getRandomArbitrary(0,5);
 
   articles.hrefs.splice(randomNumber, 1);
-  selectedHref = articles.hrefs[index[randomNumber]]
+
   console.log(JSON.stringify(articles, null, 4));
-  return selectedHref;
+
 }
 
 function getRandomArbitrary(min, max) {
