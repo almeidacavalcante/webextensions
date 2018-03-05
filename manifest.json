@@ -12,7 +12,7 @@
 
   "background":
   {
-      "scripts": ["thirdParty/jquery.js", "background.js"]
+      "scripts": ["thirdParty/jquery.js", "background.js", "thirdParty/attrchange.js"]
   },
 
   "browser_action":{
@@ -25,6 +25,7 @@
     "desktopCapture",
     "notifications",
     "tabs",
+    "activeTab",
     "storage"
   ],
 
@@ -46,8 +47,8 @@
       "js": ["login.js"]
     },
     {
-    "matches":["https://www.google.com.br/*"],
-    "js":["thirdParty/jquery.js"],
+    "matches":["https://www.google.com.br/*", "https://www.google.com.br/*"],
+    "js":["thirdParty/jquery.js", "thirdParty/attrchange.js"],
     "run_at": "document_end"
   }
   ]

@@ -2,6 +2,27 @@ beginScript();
 
 
 
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+//   message = {
+//     title: 'New movimentation',
+//     body: 'Ticket: ' + unreadArticle.ticket,
+//     href: unreadArticle.unreadArticleUrl,
+//     ticket: unreadArticle.ticket
+//   }
+    
+    readArticleByTicket(request.messageObject.ticket);
+
+    log('CONTENT-SCRIP: RECEIVED');
+});
+
+function readArticleByTicket(ticket){
+  log('TICKET NUMBER: ' + ticket)
+  $('td:contains('+ticket+')').parent().removeAttr('id');
+}
+
+
+
 function beginScript() {
   //if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205')){
   if(location.href.includes('https://www.google.com.br')){  
@@ -9,8 +30,9 @@ function beginScript() {
     
     //highlightUnreadedArticles();
     //setupRowButtons();
-    delay = getRandomArbitrary(4000, 12000);
-    setInterval(identifyArticleChange, delay);
+    createEnvironment();
+    //delay = getRandomArbitrary(20000, 40000);
+    identifyArticleTrChange();
     // identifyArticleChange();
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
@@ -26,6 +48,84 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
   }
+}
+
+function insertOrChangeLine(){
+  trs = $('table#searchform tbody').children();
+  console.log('TR childs: '+trs.length);
+  
+  randomNumber = getRandomArbitrary(2, trs.length-1);
+
+  trs.eq(randomNumber).attr('id', 'unread');
+}
+
+function createEnvironment(){
+  $('span#body.ctr-p').remove();
+  $('div#searchform.jhp').remove();
+  $('div.fbar').remove();
+
+  $(`
+  <table id="searchform" class="" style="width:100%">
+    <tr>
+      <th>Ticket</th>
+      <th>Client</th> 
+      <th>Subject</th>
+    </tr>
+    <tr>
+      <td>#70119901</td>
+      <td>Smith</td> 
+      <td>Computer doesnt start</td>
+    </tr>
+    <tr>
+      <td>#70119912</td>
+      <td>Jackson</td> 
+      <td>I need a mousepad</td>
+    </tr>
+    <tr>
+      <td>#70119922</td>
+      <td>Livia</td> 
+      <td>I need a monitor</td>
+    </tr>
+    <tr>
+      <td>#70111234</td>
+      <td>Mark</td> 
+      <td>Reset my password</td>
+    </tr>
+    <tr>
+      <td>#70114321</td>
+      <td>Jackson</td> 
+      <td>I need a mousepad</td>
+    </tr>
+    <tr>
+      <td>#70111324</td>
+      <td>Livia</td> 
+      <td>I need a monitor</td>
+    </tr>
+  </table>
+  `).appendTo('div#main.content');
+
+  addCSS();
+
+  delay = getRandomArbitrary(5000,11000);
+  setInterval(insertOrChangeLine, delay);
+}
+
+function addCSS(){
+
+  $("<style type='text/css'> #unread{ background-color: #43C59E;} </style>").appendTo("head");
+
+  $('table, th, td').css(
+    {
+      "border": "1px solid black",
+      "border-collapse": "collapse"
+    }
+  )
+
+  $('th, td').css(
+    {
+      "padding": "15px"
+    }
+  )
 }
 
 function identifyArticleChange(){
@@ -49,8 +149,50 @@ function identifyArticleChange(){
   chrome.runtime.sendMessage({
     unreadArticles: unreadArticles
   });
+}
+
+function log(message){
+  console.log(message);
+  
+}
+
+function identifyArticleTrChange(){
+  $('table#searchform tbody tr').attrchange({
+    trackValues: true, /* Default to false, if set to true the event object is 
+                          updated with old and new value.*/
+    callback: function (event) { 
+        console.log('ATTRIBUTE CHANGED!');
+        log(event);
+        ticket = event.target.cells[0].innerText;
+        log('TICKET CHANGED: ' + ticket);
+        baseURL = 'http://localhost:4200/';
+
+        if(event.attributeName == 'id'){
+          if(event.oldValue == 'unread'){
+            log('MENSAGEM VISTA -> COLOCAR COMO READED!');
+          } else {
+            chrome.runtime.sendMessage({
+              unreadArticleUrl: baseURL + ticket,
+              ticket: ticket
+            });
+          }
+        }
+
+
+        
+        //event               - event object
+        //event.attributeName - Name of the attribute modified
+        //event.oldValue      - Previous value of the modified attribute
+        //event.newValue      - New value of the modified attribute
+        //Triggered when the selected elements attribute is added/updated/removed
+    }        
+  });
+
+
 
 }
+
+
 
 function returnRandomSubGroup(articles){
     console.log(JSON.stringify(articles, null, 4));

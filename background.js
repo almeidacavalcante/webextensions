@@ -2,13 +2,26 @@ function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * max) + min  
 }
 
+function treatEventNew(unreadArticle){
+
+    console.log(JSON.stringify(unreadArticle));
+
+    message = {
+        title: 'New movimentation',
+        body: 'Ticket: ' + unreadArticle.ticket,
+        href: unreadArticle.unreadArticleUrl,
+        ticket: unreadArticle.ticket
+    }
+    console.log('chrome.storage.sync.set: before notifyMe()');
+    
+    notifyMe(message);
+}
+
 function treatEvent(unreadArticlesObject){ 
     //saveChanges(unreadArticles.unreadArticles);
     console.log('treatEvent: ' + unreadArticlesObject.unreadArticles);
     // Get a value saved in a form.
     var actualUnreadArticles = unreadArticlesObject;
-    console.log('treatEvent:after assign: ' + actualUnreadArticles.unreadArticles);
-    console.log('treatEvent:after assign length: ' + actualUnreadArticles.unreadArticles.hrefs.length);
     // Check that there's some code there.
     if (!actualUnreadArticles) {
       alert('Error: No value specified');
@@ -85,19 +98,7 @@ function treatEvent(unreadArticlesObject){
     });  
 }
 
-chrome.runtime.onMessage.addListener(treatEvent);
-
-
-// unreadArticles =  {
-//     hrefs: [
-//       'http://www.google.com.br/#1',
-//       'http://www.google.com.br/#2',
-//       'http://www.google.com.br/#3',
-//       'http://www.google.com.br/#4',
-//       'http://www.google.com.br/#5',
-//       'http://www.google.com.br/#6'
-//     ]
-//   };
+chrome.runtime.onMessage.addListener(treatEventNew);
 
 function saveChanges(unreadArticlesObject) {
     console.log('inside saveChanges' + unreadArticlesObject.hrefs);
@@ -189,13 +190,34 @@ function notifyMe(message){
 }
 
 function notify(message){
+
     var notification = new Notification(message.title, {
         icon: 'img/penny.png',
         body: message.body,
+        ticket: message.ticket
     })
 
-    notification.onclick = function (){
-        window.open(message.href);
-    };
-    setTimeout(notification.close.bind(notification), 12000);
+    chrome.tabs.query({},function(tabs){     
+        tabs.forEach(function(tab){
+            if(tab.url == 'https://www.google.com.br/'){
+                tabId = tab.id;
+                notification.onclick = function (event){
+                    console.log(event);
+                    // window.open(message.href, '_blank');
+                    window.open(message.href, '_blank','width=560,height=340,toolbar=0,menubar=0,location=0');
+                    //window.open(message.href, 'New Popup',height=100,width=100);
+                    chrome.tabs.sendMessage(tabId, 
+                        {
+                            messageObject: message,
+                        }, 
+                        function(response) {
+                    });
+                    notification.close();
+                }; 
+            }
+        });
+    });
+
+
+    setTimeout(notification.close.bind(notification), 10000);
 }
