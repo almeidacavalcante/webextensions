@@ -54,7 +54,7 @@ function insertOrChangeLine(){
   trs = $('table#searchform tbody').children();
   console.log('TR childs: '+trs.length);
   
-  randomNumber = getRandomArbitrary(2, trs.length-1);
+  randomNumber = getRandomArbitrary(1, trs.length-1);
 
   trs.eq(randomNumber).attr('id', 'unread');
 }
