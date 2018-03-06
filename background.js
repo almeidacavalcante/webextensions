@@ -1,23 +1,49 @@
 function getRandomArbitrary(min, max) {
-    return Math.floor(Math.random() * max) + min  
+    return Math.floor(Math.random() * max) + min
 }
 
-function treatEventNew(unreadArticle){
-
-    console.log(JSON.stringify(unreadArticle));
-
-    message = {
-        title: 'New movimentation',
-        body: 'Ticket: ' + unreadArticle.ticket,
-        href: unreadArticle.unreadArticleUrl,
-        ticket: unreadArticle.ticket
-    }
-    console.log('chrome.storage.sync.set: before notifyMe()');
-    
-    notifyMe(message);
+function print(content){
+    console.log(JSON.stringify(content, null, 4));
 }
 
-function treatEvent(unreadArticlesObject){ 
+// {
+//     "ticket": "70122005",
+//     "href": "localhost:4200"
+// }
+function treatEventNew(unreadArticles){
+
+    chrome.storage.sync.get("unreadArticles", function(storedValue) {
+
+        if (!chrome.runtime.error) {
+            if (storedValue.unreadArticles == undefined){
+                print('UNDEFINED');
+                saveStatus(unreadArticles);
+            }else if (storedValue.unreadArticles.unreadArticlesJSON.length <= unreadArticles.unreadArticlesJSON.length) {
+                print('STORED VALUES <= ACTUAL VALUES');
+                saveStatus(unreadArticles);
+            }
+        }
+    });
+}
+
+chrome.runtime.onMessage.addListener(treatEventNew);
+
+function saveStatus(unreadArticles){
+    print('SAVE STATUS');
+    chrome.storage.sync.set({'unreadArticles': unreadArticles}, function() {
+        unreadArticles.unreadArticlesJSON.forEach(element => {
+            message = {
+                title: 'Nova movimentação!',
+                body: 'Ticket: #' + element.ticket,
+                href: element.href
+            }
+            notifyMe(message);
+        });
+    });
+}
+
+
+function treatEvent(unreadArticlesObject){
     //saveChanges(unreadArticles.unreadArticles);
     console.log('treatEvent: ' + unreadArticlesObject.unreadArticles);
     // Get a value saved in a form.
@@ -36,7 +62,7 @@ function treatEvent(unreadArticlesObject){
     //     notifyMe(message);
     // });
     chrome.storage.sync.clear();
-    
+
 
     chrome.storage.sync.get("unreadArticles", function(items) {
         if (!chrome.runtime.error) {
@@ -47,13 +73,13 @@ function treatEvent(unreadArticlesObject){
             //     chrome.storage.sync.set({'unreadArticles': 0}, function() {
             //         //no code
             //     });
-            // } else  
+            // } else
             if (storedValue == undefined){
                 console.log('storedValue == undefined');
-                
+
                 chrome.storage.sync.set({'unreadArticles': actualUnreadArticles.unreadArticles}, function() {
                     console.log('chrome.storage.sync.set: '+JSON.stringify(actualUnreadArticles.unreadArticles.hrefs, null, 4));
-                    
+
                     Array.prototype.forEach.call((actualUnreadArticles.unreadArticles.hrefs), element => {
                         console.log('ELEMENT: '+JSON.stringify(element))
 
@@ -64,11 +90,11 @@ function treatEvent(unreadArticlesObject){
                             href: element + ticket
                         }
                         console.log('chrome.storage.sync.set: before notifyMe()');
-                        
+
                         notifyMe(message);
                     });
                 });
-            } 
+            }
             else if (true){
 
                 chrome.storage.sync.set({'unreadArticles': actualUnreadArticles.unreadArticles}, function() {
@@ -80,11 +106,11 @@ function treatEvent(unreadArticlesObject){
                         body: 'check those out',
                         href: 'http://www.google.com.br/' + '#' + actualUnreadArticles
                     }
-                    
+
                     notifyMe(message);
                 });
             }
-        } 
+        }
         // else {
         //     chrome.storage.sync.set({'unreadArticles': actualUnreadArticles}, function() {
         //         message = {
@@ -95,10 +121,9 @@ function treatEvent(unreadArticlesObject){
         //         notifyMe(message);
         //     });
         // }
-    });  
+    });
 }
 
-chrome.runtime.onMessage.addListener(treatEventNew);
 
 function saveChanges(unreadArticlesObject) {
     console.log('inside saveChanges' + unreadArticlesObject.hrefs);
@@ -139,7 +164,7 @@ function saveChanges(unreadArticlesObject) {
                         notifyMe(message);
                     });
                 });
-            } 
+            }
             // else if (storedValue.length < actualUnreadArticles.hrefs.length){
 
             //     chrome.storage.sync.set({'unreadArticles': actualUnreadArticles}, function() {
@@ -151,11 +176,11 @@ function saveChanges(unreadArticlesObject) {
             //             body: 'check those out',
             //             href: 'http://www.google.com.br/' + '#' + actualUnreadArticles
             //         }
-                    
+
             //         notifyMe(message);
             //     });
             // }
-        } 
+        }
         // else {
         //     chrome.storage.sync.set({'unreadArticles': actualUnreadArticles}, function() {
         //         message = {
@@ -166,7 +191,7 @@ function saveChanges(unreadArticlesObject) {
         //         notifyMe(message);
         //     });
         // }
-    });   
+    });
 }
 
 function sendData(tab){
@@ -197,23 +222,35 @@ function notify(message){
         ticket: message.ticket
     })
 
-    chrome.tabs.query({},function(tabs){     
+    authorizedUrls = [
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html'
+    ]
+
+    chrome.tabs.query({},function(tabs){
         tabs.forEach(function(tab){
-            if(tab.url == 'https://www.google.com.br/'){
+            if( tab.url == authorizedUrls[0] ||
+                tab.url == authorizedUrls[1] ||
+                tab.url == authorizedUrls[2] ||
+                tab.url == authorizedUrls[3] ){
+
                 tabId = tab.id;
+
                 notification.onclick = function (event){
                     console.log(event);
                     // window.open(message.href, '_blank');
-                    window.open(message.href, '_blank','width=560,height=340,toolbar=0,menubar=0,location=0');
+                    window.open('file:///home/almeida/webextensions/lucifer-plug-in/pages/70122145%20-%20Detalhes%20-%20Chamado%20-%20AtendeMP.html', '_blank','width=800,height=600,toolbar=1,menubar=1,location=0');
                     //window.open(message.href, 'New Popup',height=100,width=100);
-                    chrome.tabs.sendMessage(tabId, 
+                    chrome.tabs.sendMessage(tabId,
                         {
                             messageObject: message,
-                        }, 
+                        },
                         function(response) {
                     });
                     notification.close();
-                }; 
+                };
             }
         });
     });

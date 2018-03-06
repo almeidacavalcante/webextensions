@@ -4,6 +4,7 @@ beginScript();
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
+
 //   message = {
 //     title: 'New movimentation',
 //     body: 'Ticket: ' + unreadArticle.ticket,
@@ -25,15 +26,16 @@ function readArticleByTicket(ticket){
 
 function beginScript() {
   //if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205')){
-  if(location.href.includes('https://www.google.com.br')){  
-    console.log("HELLO");
-    
-    //highlightUnreadedArticles();
-    //setupRowButtons();
-    createEnvironment();
-    //delay = getRandomArbitrary(20000, 40000);
-    identifyArticleTrChange();
-    // identifyArticleChange();
+  if(location.href.includes('file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html')){  
+    console.log("THE BEGINING...");
+
+    onReloadCheck();
+    setupRowButtons();
+    highlightUnreadedArticles();
+
+    miliseconds = 5 * 60000
+    reloadPeriodically(miliseconds);
+
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
   } else if (location.href.includes('index.pl?Action=AgentTicketOwner;TicketID=')) {
@@ -48,6 +50,10 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
   }
+}
+
+function reloadPeriodically(miliseconds){
+  
 }
 
 function insertOrChangeLine(){
@@ -156,40 +162,60 @@ function log(message){
   
 }
 
-function identifyArticleTrChange(){
-  $('table#searchform tbody tr').attrchange({
-    trackValues: true, /* Default to false, if set to true the event object is 
-                          updated with old and new value.*/
-    callback: function (event) { 
-        console.log('ATTRIBUTE CHANGED!');
-        log(event);
-        ticket = event.target.cells[0].innerText;
-        log('TICKET CHANGED: ' + ticket);
-        baseURL = 'http://localhost:4200/';
+function onReloadCheck(){
 
-        if(event.attributeName == 'id'){
-          if(event.oldValue == 'unread'){
-            log('MENSAGEM VISTA -> COLOCAR COMO READED!');
-          } else {
-            chrome.runtime.sendMessage({
-              unreadArticleUrl: baseURL + ticket,
-              ticket: ticket
-            });
-          }
-        }
+  // TEXT (CHAMADO)
+  //console.log($('td.UnreadArticles').parent()[0].children[3].children[0].innerText);
 
+  // URL (CHAMADO)
+  //console.log($('td.UnreadArticles').parent()[0].children[3].children[0].href);
 
-        
-        //event               - event object
-        //event.attributeName - Name of the attribute modified
-        //event.oldValue      - Previous value of the modified attribute
-        //event.newValue      - New value of the modified attribute
-        //Triggered when the selected elements attribute is added/updated/removed
-    }        
+  //JSON Array Object
+  unreadArticlesJSON = [];
+
+  //Populate the JSON Array
+  $('td.UnreadArticles').parent().each(function(index){
+    unreadArticlesJSON.push({
+      ticket: $(this)[0].children[3].children[0].innerText,
+      href: $(this)[0].children[3].children[0].href
+    })
+  })
+  console.log(JSON.stringify(unreadArticlesJSON,null,4));
+  chrome.runtime.sendMessage({
+    unreadArticlesJSON: unreadArticlesJSON
   });
 
 
+  //console.log(JSON.stringify(unreadArticlesJSON, null, 4));
 
+
+  // $('table#searchform tbody tr').attrchange({
+  //   trackValues: true, /* Default to false, if set to true the event object is 
+  //                         updated with old and new value.*/
+  //   callback: function (event) { 
+  //       console.log('ATTRIBUTE CHANGED!');
+  //       log(event);
+  //       ticket = event.target.cells[0].innerText;
+  //       log('TICKET CHANGED: ' + ticket);
+  //       baseURL = 'http://localhost:4200/';
+
+  //       if(event.attributeName == 'id'){
+  //         if(event.oldValue == 'unread'){
+  //           log('MENSAGEM VISTA -> COLOCAR COMO READED!');
+  //         } else {
+  //           chrome.runtime.sendMessage({
+  //             unreadArticleUrl: baseURL + ticket,
+  //             ticket: ticket
+  //           });
+  //         }
+  //       }        
+  //       //event               - event object
+  //       //event.attributeName - Name of the attribute modified
+  //       //event.oldValue      - Previous value of the modified attribute
+  //       //event.newValue      - New value of the modified attribute
+  //       //Triggered when the selected elements attribute is added/updated/removed
+  //   }        
+  // });
 }
 
 

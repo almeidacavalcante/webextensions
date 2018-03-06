@@ -39,7 +39,7 @@
       "js": ["inscricaoCeaf.js"]
     },
     {
-      "matches": ["https://www.google.com.br/*"],
+      "matches": ["file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html"],
       "js": ["otrsScript.js"]
     },
     {
@@ -47,7 +47,7 @@
       "js": ["login.js"]
     },
     {
-    "matches":["https://www.google.com.br/*", "https://www.google.com.br/*"],
+    "matches":["file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html", "file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html"],
     "js":["thirdParty/jquery.js", "thirdParty/attrchange.js"],
     "run_at": "document_end"
   }
