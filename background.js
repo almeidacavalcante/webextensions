@@ -11,14 +11,24 @@ function print(content){
 //     "href": "localhost:4200"
 // }
 function treatEventNew(unreadArticles){
-
-    chrome.storage.sync.get("unreadArticles", function(storedValue) {
+    
+    id = 'unreadArticles' + unreadArticles.pageNumber;
+    print('TREAT EVENT -> ID: ' + id)
+    chrome.storage.sync.get(id, function(storedValue) {
+        console.log('INSIDE GET METHOD');
+        print(storedValue);
 
         if (!chrome.runtime.error) {
+
+            if (typeof storedValue[id] != 'string') {
+                storedValue[id] = '';
+            }
+
             if (storedValue.unreadArticles == undefined){
+                
                 print('UNDEFINED');
                 saveStatus(unreadArticles);
-            }else if (storedValue.unreadArticles.unreadArticlesJSON.length <= unreadArticles.unreadArticlesJSON.length) {
+            }else if ([storedValue.id].unreadArticlesJSON.length < unreadArticles.unreadArticlesJSON.length) {
                 print('STORED VALUES <= ACTUAL VALUES');
                 saveStatus(unreadArticles);
             }
@@ -30,7 +40,12 @@ chrome.runtime.onMessage.addListener(treatEventNew);
 
 function saveStatus(unreadArticles){
     print('SAVE STATUS');
-    chrome.storage.sync.set({'unreadArticles': unreadArticles}, function() {
+    print(unreadArticles);
+
+    id = 'unreadArticles' + unreadArticles.pageNumber;
+    print('SAVE STATUS -> ID: ' + id)
+
+    chrome.storage.sync.set({id: unreadArticles}, function() {
         unreadArticles.unreadArticlesJSON.forEach(element => {
             message = {
                 title: 'Nova movimentação!',
@@ -38,7 +53,13 @@ function saveStatus(unreadArticles){
                 href: element.href
             }
             notifyMe(message);
+
+            //chrome.storage.sync.clear();
         });
+
+        chrome.storage.sync.get(id, function(dados){
+            console.log(dados);
+        })
     });
 }
 
@@ -223,10 +244,9 @@ function notify(message){
     })
 
     authorizedUrls = [
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html'
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
     ]
 
     chrome.tabs.query({},function(tabs){
@@ -241,7 +261,7 @@ function notify(message){
                 notification.onclick = function (event){
                     console.log(event);
                     // window.open(message.href, '_blank');
-                    window.open('file:///home/almeida/webextensions/lucifer-plug-in/pages/70122145%20-%20Detalhes%20-%20Chamado%20-%20AtendeMP.html', '_blank','width=800,height=600,toolbar=1,menubar=1,location=0');
+                    window.open(message.href, '_blank','width=800,height=600,toolbar=1,menubar=1,location=0');
                     //window.open(message.href, 'New Popup',height=100,width=100);
                     chrome.tabs.sendMessage(tabId,
                         {

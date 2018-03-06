@@ -22,18 +22,74 @@ function readArticleByTicket(ticket){
   $('td:contains('+ticket+')').parent().removeAttr('id');
 }
 
+function setupFirebase(){
+  $('head').append(`
+
+  <script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-messaging.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
+
+
+  <!-- Leave out Storage -->
+  <!-- <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-storage.js"></script> -->
+  
+  `);
+
+  var config = {
+    apiKey: "AIzaSyBquTcxItmMfsRbkSaOcPYAmPtl9Ko97ys",
+    authDomain: "lucifer-plugin.firebaseapp.com",
+    databaseURL: "https://lucifer-plugin.firebaseio.com",
+    projectId: "lucifer-plugin",
+    storageBucket: "lucifer-plugin.appspot.com",
+    messagingSenderId: "198463203684"
+  };
+
+  firebase.initializeApp(config);
+
+  email = 'skyknight1989@gmail.com';
+  password = 'jkf8mci24wd';
+
+  firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+  // Handle Errors here.
+
+  console.log("DEU ERRO!");
+
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // ...
+  });
+}
+
+
 
 
 function beginScript() {
-  //if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205')){
-  if(location.href.includes('file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html')){  
+
+  setupFirebase();
+
+
+
+  monitoredUrls = [
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
+  ]
+
+  if (location.href.includes(monitoredUrls[0]) ||
+      location.href.includes(monitoredUrls[1]) ||
+      location.href.includes(monitoredUrls[2])) {
+
     console.log("THE BEGINING...");
 
     onReloadCheck();
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 5 * 60000
+    miliseconds = 60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
@@ -53,7 +109,9 @@ function beginScript() {
 }
 
 function reloadPeriodically(miliseconds){
-  
+  setInterval(function() {
+    window.location.reload();
+  }, miliseconds); 
 }
 
 function insertOrChangeLine(){
@@ -180,9 +238,28 @@ function onReloadCheck(){
       href: $(this)[0].children[3].children[0].href
     })
   })
+
+  pageNumber = 0;
+
+  urls = [
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
+  ]
+
+  if (location.href == urls[0]){
+    pageNumber = 4;
+  } else if (location.href == urls[1]) {
+    pageNumber = 5;
+  } else if (location.href == urls[2]) {
+    pageNumber = 6;
+  }
+
+
   console.log(JSON.stringify(unreadArticlesJSON,null,4));
   chrome.runtime.sendMessage({
-    unreadArticlesJSON: unreadArticlesJSON
+    unreadArticlesJSON: unreadArticlesJSON,
+    pageNumber: pageNumber  
   });
 
 
