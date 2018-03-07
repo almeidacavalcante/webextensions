@@ -12,8 +12,8 @@ function setupFirebase(){
   
     firebase.initializeApp(config);
   
-    email = 'skyknight1989@gmail.com';
-    password = 'jkf8mci24wd';
+    email = '';
+    password = '';
   
     firebase.auth().signInAnonymously().catch(function(error) {
         // Handle Errors here.
