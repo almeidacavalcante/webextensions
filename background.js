@@ -9,23 +9,27 @@ function setupFirebase(){
         storageBucket: "lucifer-plugin.appspot.com",
         messagingSenderId: "198463203684"
     };
-  
-    firebase.initializeApp(config);
-  
-    email = '';
-    password = '';
-  
-    firebase.auth().signInAnonymously().catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
+
+    try {
+        firebase.initializeApp(config);
+        email = '';
+        password = '';
       
-        if (errorCode === 'auth/operation-not-allowed') {
-          alert('You must enable Anonymous auth in the Firebase Console.');
-        } else {
-          console.error(error);
-        }
-    });
+        firebase.auth().signInAnonymously().catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+          
+            if (errorCode === 'auth/operation-not-allowed') {
+              alert('You must enable Anonymous auth in the Firebase Console.');
+            } else {
+              console.error(error);
+            }
+        });
+    }
+    catch(err) {
+
+    }
 
     // firebase.auth().signInWithEmailAndPassword(email, password)
     //         .catch(function(error) {
@@ -43,11 +47,12 @@ function setupFirebase(){
 
 chrome.runtime.onMessage.addListener(treatContentEvent);
 
+var connected = false
+
 function treatContentEvent(articles){
     print('** TREAT CONTENT EVENT **');
+    
     setupFirebase();
-
-    print(articles)
 
     getStatus(articles)
 
@@ -82,45 +87,83 @@ function getStatus(articles){
 
     //Comparar tickets da pagina com os do banco
     print(articles);
-   
 
-    articles.unreadArticlesJSON.forEach( element => {
+    pageNumber = articles.pageNumber
+    
+    numberOfUnreadArticles(pageNumber).then(function(snapshot){
+        print("NUMBER OF ARTICLES STORED: " + snapshot.numChildren())
+        if (articles.unreadArticlesJSON.length >= snapshot.numChildren()){
+            removeAllArticlesByPageNumber(pageNumber).then(function(snapshot){
+                print(snapshot)
+                debugger
 
-        find = findTicket.bind(element.ticket)
-
-        print('**'+find(element.ticket))
-        if ( find(element.ticket) ){
-            print("TICKET FOUND: " + element.ticket)
-        }else{
-            print("TICKET NOT FOUND: " + element.ticket)
-            print("SAVE THE TICKET")
-            //persistir element.ticket
-            //notificar usuario de nova nota
+                snapshot.forEach(function(data) {
+                    var record = data.val(); 
+              
+                    if(record["pageNumber"] == pageNumber){
+                        ref.child(data.key()).remove();
+                    }
+                });       
+                debugger
+                articles.unreadArticlesJSON.forEach( element => {
+                    
+                    var newUnreadRef = unreadRef.push();
+                    newUnreadRef.set({
+                        "ticket": element.ticket,
+                        "href": element.href,
+                        "pageNumber": articles.pageNumber
+                    });
+                })
+            });
         }
     })
 
     articles.unreadArticlesJSON.forEach( element => {
-        // var newUnreadRef = unreadRef.push();
-        // newUnreadRef.set({
-        //     "ticket": element.ticket,
-        //     "href": element.href,
-        //     "pageNumber": articles.pageNumber
-        // });
+        
+        findTicket(element.ticket).then(function(snapshot) {
+            print("THEN: TREATING FIND TIKCET")
+            print(snapshot)
+        }, function(){
+
+        });
+
+        // if ( find(element.ticket) ){
+        //     print("TICKET FOUND: " + element.ticket)
+        // }else{
+        //     print("TICKET NOT FOUND: " + element.ticket)
+        //     print("SAVE THE TICKET")
+        //     //persistir element.ticket
+        //     //notificar usuario de nova nota
+        // }
+
     })
+}
+
+function removeAllArticlesByPageNumber(pageNumber){
+    var rootRef = firebase.database().ref();
+    var unreadRef = rootRef.child('unreadArticles');
+
+    print("PAGE NUMBER: " + pageNumber)
+    promise = unreadRef.orderByChild("pageNumber").equalTo(pageNumber).once("value")
+    
+    return promise
+}
+
+function numberOfUnreadArticles(pageNumber){
+    var rootRef = firebase.database().ref();
+    var unreadRef = rootRef.child('unreadArticles');
+    promise = unreadRef.orderByChild("pageNumber").equalTo(pageNumber).once("value")
+
+    return promise
 }
 
 function findTicket(ticket){
     var rootRef = firebase.database().ref();
     var unreadRef = rootRef.child('unreadArticles');
+    print("TICKET:" + ticket)
+    promise = unreadRef.orderByChild('ticket').equalTo(ticket).once("value")
 
-    unreadRef.orderByChild('ticket').equalTo(ticket).on("value", function(snap){
-        if( snap != null ){
-            print("RETURN TRUE");
-            return true;
-        }else{
-            return false;
-        }
-    });
+    return promise
 }
 
 function getRandomArbitrary(min, max) {
@@ -137,17 +180,14 @@ function treatEventNew(unreadArticles){
     id = 'unreadArticles' + unreadArticles.pageNumber;
     print('TREAT EVENT -> ID: ' + id)
     chrome.storage.sync.get(id, function(storedValue) {
-        console.log('INSIDE GET METHOD');
+
         print(storedValue);
 
         if (!chrome.runtime.error) {
-
             if (typeof storedValue[id] != 'string') {
                 storedValue[id] = '';
             }
-
-            if (storedValue.unreadArticles == undefined){
-                
+            if (storedValue.unreadArticles == undefined){  
                 print('UNDEFINED');
                 saveStatus(unreadArticles);
             }else if ([storedValue.id].unreadArticlesJSON.length < unreadArticles.unreadArticlesJSON.length) {
@@ -378,10 +418,10 @@ function notify(message){
 
     chrome.tabs.query({},function(tabs){
         tabs.forEach(function(tab){
-            if( tab.url == authorizedOfflineUrls[0] ||
-                tab.url == authorizedOfflineUrls[1] ||
-                tab.url == authorizedOfflineUrls[2] ||
-                tab.url == authorizedOfflineUrls[3] ){
+            if( tab.url == authorizedUrls[0] ||
+                tab.url == authorizedUrls[1] ||
+                tab.url == authorizedUrls[2] ||
+                tab.url == authorizedUrls[3] ){
 
                 tabId = tab.id;
 

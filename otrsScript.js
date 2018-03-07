@@ -36,9 +36,9 @@ function beginScript() {
     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html'
   ]
 
-  if (location.href.includes(monitoredOfflineUrls[0]) ||
-      location.href.includes(monitoredOfflineUrls[1]) ||
-      location.href.includes(monitoredOfflineUrls[2])) {
+  if (location.href.includes(monitoredUrls[0]) ||
+      location.href.includes(monitoredUrls[1]) ||
+      location.href.includes(monitoredUrls[2])) {
 
     console.log("THE BEGINING...");
 
@@ -46,7 +46,7 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 120*60000;
+    miliseconds = 120 * 60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
