@@ -22,56 +22,7 @@ function readArticleByTicket(ticket){
   $('td:contains('+ticket+')').parent().removeAttr('id');
 }
 
-function setupFirebase(){
-  $('head').append(`
-
-  <script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-messaging.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
-
-
-  <!-- Leave out Storage -->
-  <!-- <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-storage.js"></script> -->
-  
-  `);
-
-  var config = {
-    apiKey: "AIzaSyBquTcxItmMfsRbkSaOcPYAmPtl9Ko97ys",
-    authDomain: "lucifer-plugin.firebaseapp.com",
-    databaseURL: "https://lucifer-plugin.firebaseio.com",
-    projectId: "lucifer-plugin",
-    storageBucket: "lucifer-plugin.appspot.com",
-    messagingSenderId: "198463203684"
-  };
-
-  firebase.initializeApp(config);
-
-  email = 'skyknight1989@gmail.com';
-  password = 'jkf8mci24wd';
-
-  firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
-  // Handle Errors here.
-
-  console.log("DEU ERRO!");
-
-  var errorCode = error.code;
-  var errorMessage = error.message;
-  // ...
-  });
-}
-
-
-
-
 function beginScript() {
-
-  setupFirebase();
-
-
 
   monitoredUrls = [
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
@@ -79,9 +30,15 @@ function beginScript() {
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
-  if (location.href.includes(monitoredUrls[0]) ||
-      location.href.includes(monitoredUrls[1]) ||
-      location.href.includes(monitoredUrls[2])) {
+  monitoredOfflineUrls = [
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html'
+  ]
+
+  if (location.href.includes(monitoredOfflineUrls[0]) ||
+      location.href.includes(monitoredOfflineUrls[1]) ||
+      location.href.includes(monitoredOfflineUrls[2])) {
 
     console.log("THE BEGINING...");
 
@@ -89,7 +46,7 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 60000;
+    miliseconds = 120*60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
@@ -192,34 +149,6 @@ function addCSS(){
   )
 }
 
-function identifyArticleChange(){
-  //numberOfUnreadedArticles = $('td.unreadArticles').length;
-  //numberOfUnreadedArticles = getRandomArbitrary(1,5);
-  //console.log(numberOfUnreadedArticles);
-
-  unreadArticles = {
-    hrefs: [
-      'http://www.google.com/#1',
-      'http://www.google.com/#2',
-      'http://www.google.com/#3',
-      'http://www.google.com/#4',
-      'http://www.google.com/#5',
-      'http://www.google.com/#6'
-    ]
-  };
-
-  unreadedArticles = returnOneOf(unreadArticles);
-
-  chrome.runtime.sendMessage({
-    unreadArticles: unreadArticles
-  });
-}
-
-function log(message){
-  console.log(message);
-  
-}
-
 function onReloadCheck(){
 
   // TEXT (CHAMADO)
@@ -239,7 +168,7 @@ function onReloadCheck(){
     })
   })
 
-  pageNumber = 0;
+  pageNumber = 4;
 
   urls = [
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
