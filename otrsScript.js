@@ -46,7 +46,7 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 120 * 60000;
+    miliseconds = 1 * 60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
@@ -261,7 +261,13 @@ function getRandomArbitrary(min, max) {
 function highlightUnreadedArticles() {
   //Na página AgentTicketZoom, tem uma estrela, mas não quero destacá-la
   //por isso essa consulta se o parent dela tem a classe Last
+
+
+
+
   if ($('.UnreadArticles').parent().attr('class') != 'Last') {
+    $('.UnreadArticles').parent().parent().children().mouseover(function(){console.log("MOUSE OVER!");
+    })
     tds = $('.UnreadArticles').parent().parent().children();
     tds.each(
       function(index){

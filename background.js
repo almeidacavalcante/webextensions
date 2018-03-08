@@ -422,17 +422,16 @@ function notify(message){
 
     //TODO: To make it OFFLINE
     authorizedOfflineUrls = [
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/70122145%20-%20Detalhes%20-%20Chamado%20-%20AtendeMP.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/70122145%20-%20Detalhes%20-%20Chamado%20-%20AtendeMP.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/70122145%20-%20Detalhes%20-%20Chamado%20-%20AtendeMP.html'
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
+        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
     ]
 
     chrome.tabs.query({},function(tabs){
         tabs.forEach(function(tab){
-            if( tab.url == authorizedUrls[0] ||
-                tab.url == authorizedUrls[1] ||
-                tab.url == authorizedUrls[2] ||
-                tab.url == authorizedUrls[3] ){
+            if( tab.url == authorizedOfflineUrls[0] ||
+                tab.url == authorizedOfflineUrls[1] ||
+                tab.url == authorizedOfflineUrls[2] ){
 
                 tabId = tab.id;
 
@@ -454,5 +453,5 @@ function notify(message){
     });
 
 
-    setTimeout(notification.close.bind(notification), 10000);
+    setTimeout(notification.close.bind(notification), 60000);
 }
