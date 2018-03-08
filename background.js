@@ -58,27 +58,6 @@ function treatContentEvent(articles){
 
 }
 
-// {
-//     "unreadArticlesJSON": [
-//         {
-//             "ticket": "70122005",
-//             "href": "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketZoom;TicketID=139511"
-//         },
-//         {
-//             "ticket": "70121715",
-//             "href": "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketZoom;TicketID=139221"
-//         },
-//         {
-//             "ticket": "70121595",
-//             "href": "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketZoom;TicketID=139101"
-//         },
-//         {
-//             "ticket": "70120885",
-//             "href": "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketZoom;TicketID=138392"
-//         }
-//     ],
-//     "pageNumber": 4
-// }
 
 function getStatus(articles){
     print('** GET STATUS **');
@@ -90,70 +69,102 @@ function getStatus(articles){
 
     pageNumber = articles.pageNumber
     
-    numberOfUnreadArticles(pageNumber).then(function(snapshot){
-        print("NUMBER OF ARTICLES STORED: " + snapshot.numChildren())
-        if (articles.unreadArticlesJSON.length >= snapshot.numChildren()){
-            removeAllArticlesByPageNumber(pageNumber).then(function(snapshot){
-                print(snapshot)
-                debugger
 
-                snapshot.forEach(function(data) {
-                    var record = data.val(); 
-              
-                    if(record["pageNumber"] == pageNumber){
-                        ref.child(data.key()).remove();
-                    }
-                });       
-                debugger
-                articles.unreadArticlesJSON.forEach( element => {
-                    
-                    var newUnreadRef = unreadRef.push();
-                    newUnreadRef.set({
-                        "ticket": element.ticket,
-                        "href": element.href,
-                        "pageNumber": articles.pageNumber
-                    });
-                })
-            });
-        }
-    })
+    getArticlesByPageNumber(pageNumber).then(function(snapshot){
 
-    articles.unreadArticlesJSON.forEach( element => {
-        
-        findTicket(element.ticket).then(function(snapshot) {
-            print("THEN: TREATING FIND TIKCET")
-            print(snapshot)
-        }, function(){
+        verifyNewArticles(articles, snapshot).then(function(persistAndNotify) {
+            debugger
 
-        });
+            removeSnapshopArticles(snapshot)
 
-        // if ( find(element.ticket) ){
-        //     print("TICKET FOUND: " + element.ticket)
-        // }else{
-        //     print("TICKET NOT FOUND: " + element.ticket)
-        //     print("SAVE THE TICKET")
-        //     //persistir element.ticket
-        //     //notificar usuario de nova nota
-        // }
+            persistAndNotify.persist.forEach( element => {
+                var newUnreadRef = unreadRef.push();
+                newUnreadRef.set({
+                    "ticket": element.ticket,
+                    "href": element.href,
+                    "pageNumber": articles.pageNumber
+                });
+            })
 
-    })
+            persistAndNotify.notify.forEach( element => {
+                var newUnreadRef = unreadRef.push();
+                newUnreadRef.set({
+                    "ticket": element.ticket,
+                    "href": element.href,
+                    "pageNumber": articles.pageNumber
+                });
+                message = {
+                    title: 'Nova movimentação!',
+                    body: 'Ticket: #' + element.ticket,
+                    href: element.href
+                }
+                notifyMe(message)
+            })
+
+        })
+    });
+
 }
 
-function removeAllArticlesByPageNumber(pageNumber){
-    var rootRef = firebase.database().ref();
-    var unreadRef = rootRef.child('unreadArticles');
+function verifyNewArticles(articles, storedArticlesSnapshot){
+    return new Promise( (resolve, reject) => {
+        newUnreadArticles = []
+        unreadArticles = []
 
-    print("PAGE NUMBER: " + pageNumber)
-    promise = unreadRef.orderByChild("pageNumber").equalTo(pageNumber).once("value")
+        //Verifica se o novo artigo ja nao esta no banco.
+        //se nao tiver adiciona no array newUnreadArticles que seja retornado
+        articles.unreadArticlesJSON.forEach( element => {
+
+            var found = false
+            storedArticlesSnapshot.forEach(function(article){
+
+                if (element.ticket == article.child('ticket').val()){
+                    found = true;
+                }
+
+            })
+
+            if (found == false) {
+                //PERSIST 
+                //NOTIFY
+                newUnreadArticles.push(element);
+            } else {
+                unreadArticles.push(element);
+                found = false
+            }
+
+
+        })
+
+        resolve({
+            notify: newUnreadArticles,
+            persist: unreadArticles
+        })
+    });
+}
+
+function getArticleByTicket(ticket){
+    var rootRef = firebase.database().ref();
+    var query = rootRef.child('unreadArticles');
+
+    promise = query.orderByChild("ticket").equalTo(ticket).once("value")
     
     return promise
 }
 
-function numberOfUnreadArticles(pageNumber){
-    var rootRef = firebase.database().ref();
-    var unreadRef = rootRef.child('unreadArticles');
-    promise = unreadRef.orderByChild("pageNumber").equalTo(pageNumber).once("value")
+function removeSnapshopArticles(snapshot){
+    snapshot.forEach(function(data) {
+        data.ref.remove()
+    });
+}
 
+function getArticlesByPageNumber(pageNumber){
+    var rootRef = firebase.database().ref();
+    var query = rootRef.child('unreadArticles');
+
+    print("PAGE NUMBER: " + pageNumber)
+    promise = query.orderByChild("pageNumber").equalTo(pageNumber).once("value")
+    
     return promise
 }
 

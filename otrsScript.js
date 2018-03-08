@@ -31,14 +31,14 @@ function beginScript() {
   ]
 
   monitoredOfflineUrls = [
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html',
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP.html'
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
   ]
 
-  if (location.href.includes(monitoredUrls[0]) ||
-      location.href.includes(monitoredUrls[1]) ||
-      location.href.includes(monitoredUrls[2])) {
+  if (location.href.includes(monitoredOfflineUrls[0]) ||
+      location.href.includes(monitoredOfflineUrls[1]) ||
+      location.href.includes(monitoredOfflineUrls[2])) {
 
     console.log("THE BEGINING...");
 
@@ -168,19 +168,23 @@ function onReloadCheck(){
     })
   })
 
-  pageNumber = 4;
-
   urls = [
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
-  if (location.href == urls[0]){
+  offlineUrls = [
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
+    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
+  ]
+
+  if (location.href == offlineUrls[0]){
     pageNumber = 4;
-  } else if (location.href == urls[1]) {
+  } else if (location.href == offlineUrls[1]) {
     pageNumber = 5;
-  } else if (location.href == urls[2]) {
+  } else if (location.href == offlineUrls[2]) {
     pageNumber = 6;
   }
 
@@ -190,41 +194,7 @@ function onReloadCheck(){
     unreadArticlesJSON: unreadArticlesJSON,
     pageNumber: pageNumber  
   });
-
-
-  //console.log(JSON.stringify(unreadArticlesJSON, null, 4));
-
-
-  // $('table#searchform tbody tr').attrchange({
-  //   trackValues: true, /* Default to false, if set to true the event object is 
-  //                         updated with old and new value.*/
-  //   callback: function (event) { 
-  //       console.log('ATTRIBUTE CHANGED!');
-  //       log(event);
-  //       ticket = event.target.cells[0].innerText;
-  //       log('TICKET CHANGED: ' + ticket);
-  //       baseURL = 'http://localhost:4200/';
-
-  //       if(event.attributeName == 'id'){
-  //         if(event.oldValue == 'unread'){
-  //           log('MENSAGEM VISTA -> COLOCAR COMO READED!');
-  //         } else {
-  //           chrome.runtime.sendMessage({
-  //             unreadArticleUrl: baseURL + ticket,
-  //             ticket: ticket
-  //           });
-  //         }
-  //       }        
-  //       //event               - event object
-  //       //event.attributeName - Name of the attribute modified
-  //       //event.oldValue      - Previous value of the modified attribute
-  //       //event.newValue      - New value of the modified attribute
-  //       //Triggered when the selected elements attribute is added/updated/removed
-  //   }        
-  // });
 }
-
-
 
 function returnRandomSubGroup(articles){
     console.log(JSON.stringify(articles, null, 4));
