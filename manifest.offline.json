@@ -41,21 +41,27 @@
       "js": ["inscricaoCeaf.js"]
     },
     {
-      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
+      "matches": ["file:///home/almeida/webextensions/lucifer-plug-in/pages/*"],
       "js": ["otrsScript.js"]
     },
     {
-      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
+      "matches": ["file:///home/almeida/webextensions/lucifer-plug-in/pages/*"],
       "js": ["login.js"]
     },
     {
-    "matches":["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*", "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
-    "js":["thirdParty/jquery.js", "thirdParty/attrchange.js"],
+    "matches":[
+      "file:///home/almeida/webextensions/lucifer-plug-in/pages/*", 
+      "file:///home/almeida/webextensions/lucifer-plug-in/pages/*"
+    ],
+    "js":[
+      "thirdParty/jquery.js", 
+      "thirdParty/attrchange.js"
+    ],
     "run_at": "document_end"
   }
   ],
 
-  "key": "mjalijpilhlcechbdikclnmlgnlmngeh",
+  "key": "ekgjhaeofigoolachddkgcbgeeonojdf",
   "content_security_policy": "script-src 'self' https://cdn.firebase.com https://*.firebaseio.com; object-src 'self'"
  
 }

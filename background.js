@@ -73,7 +73,6 @@ function getStatus(articles){
     getArticlesByPageNumber(pageNumber).then(function(snapshot){
 
         verifyNewArticles(articles, snapshot).then(function(persistAndNotify) {
-            debugger
 
             removeSnapshopArticles(snapshot)
 
@@ -421,17 +420,17 @@ function notify(message){
     ]
 
     //TODO: To make it OFFLINE
-    authorizedOfflineUrls = [
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
-        'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
-    ]
+    // authorizedUrls = [
+    //     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
+    //     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
+    //     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
+    // ]
 
     chrome.tabs.query({},function(tabs){
         tabs.forEach(function(tab){
-            if( tab.url == authorizedOfflineUrls[0] ||
-                tab.url == authorizedOfflineUrls[1] ||
-                tab.url == authorizedOfflineUrls[2] ){
+            if( tab.url == authorizedUrls[0] ||
+                tab.url == authorizedUrls[1] ||
+                tab.url == authorizedUrls[2] ){
 
                 tabId = tab.id;
 
@@ -452,6 +451,7 @@ function notify(message){
         });
     });
 
-
-    setTimeout(notification.close.bind(notification), 60000);
+    // 2 minutes
+    timeToCloseNotification = 3 * 60000;
+    setTimeout(notification.close.bind(notification), timeToCloseNotification);
 }

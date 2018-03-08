@@ -30,15 +30,17 @@ function beginScript() {
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
-  monitoredOfflineUrls = [
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
-  ]
+  // monitoredUrls = [
+  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
+  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
+  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
+  // ]
 
-  if (location.href.includes(monitoredOfflineUrls[0]) ||
-      location.href.includes(monitoredOfflineUrls[1]) ||
-      location.href.includes(monitoredOfflineUrls[2])) {
+
+
+  if (location.href.includes(monitoredUrls[0]) ||
+      location.href.includes(monitoredUrls[1]) ||
+      location.href.includes(monitoredUrls[2])) {
 
     console.log("THE BEGINING...");
 
@@ -46,7 +48,7 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 1 * 60000;
+    miliseconds = 3 * 60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
@@ -174,17 +176,18 @@ function onReloadCheck(){
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
-  offlineUrls = [
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
-    'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
-  ]
+  // urls = [
+  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
+  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
+  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
+  // ]
 
-  if (location.href == offlineUrls[0]){
+
+  if (location.href == urls[0]){
     pageNumber = 4;
-  } else if (location.href == offlineUrls[1]) {
+  } else if (location.href == urls[1]) {
     pageNumber = 5;
-  } else if (location.href == offlineUrls[2]) {
+  } else if (location.href == urls[2]) {
     pageNumber = 6;
   }
 
@@ -266,7 +269,20 @@ function highlightUnreadedArticles() {
 
 
   if ($('.UnreadArticles').parent().attr('class') != 'Last') {
-    $('.UnreadArticles').parent().parent().children().mouseover(function(){console.log("MOUSE OVER!");
+    $('.UnreadArticles').mouseover(function(){
+      console.log("MOUSE OVER!");
+      tds = $('.UnreadArticles');
+      tds.each(
+        function(index){
+          if ($(this).parent().attr('class') == 'MasterAction Even') {
+            $(this).css('background', '#6FC000');
+          }else{
+            if ($(this).parent().attr('class') == 'MasterAction'){
+              $(this).css('background', '#93E222');
+            }
+          }
+        }
+      );
     })
     tds = $('.UnreadArticles').parent().parent().children();
     tds.each(

@@ -7,7 +7,7 @@ function beginScript() {
 function login() {
   if (isLoginScreen()) {
     $('#User').val('jose.cavalcante');
-    $('#Password').val('jkf8mci24wd@#@');
+    $('#Password').val('');
     $('#LoginButton').click();
   }
 }
