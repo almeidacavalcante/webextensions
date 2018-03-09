@@ -30,11 +30,14 @@ function beginScript() {
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
+  // OFFLINE
   // monitoredUrls = [
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
   // ]
+
+  
 
 
 
@@ -48,7 +51,7 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 3 * 60000;
+    miliseconds = 1 * 60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
@@ -176,6 +179,7 @@ function onReloadCheck(){
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
+  // OFFLINE
   // urls = [
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
@@ -265,25 +269,22 @@ function highlightUnreadedArticles() {
   //Na página AgentTicketZoom, tem uma estrela, mas não quero destacá-la
   //por isso essa consulta se o parent dela tem a classe Last
 
-
-
-
   if ($('.UnreadArticles').parent().attr('class') != 'Last') {
-    $('.UnreadArticles').mouseover(function(){
-      console.log("MOUSE OVER!");
-      tds = $('.UnreadArticles');
-      tds.each(
-        function(index){
-          if ($(this).parent().attr('class') == 'MasterAction Even') {
-            $(this).css('background', '#6FC000');
-          }else{
-            if ($(this).parent().attr('class') == 'MasterAction'){
-              $(this).css('background', '#93E222');
-            }
-          }
-        }
-      );
-    })
+    // $('.UnreadArticles').mouseover(function(){
+    //   console.log("MOUSE OVER!");
+    //   tds = $('.UnreadArticles');
+    //   tds.each(
+    //     function(index){
+    //       if ($(this).parent().attr('class') == 'MasterAction Even') {
+    //         $(this).css('background', '#6FC000');
+    //       }else{
+    //         if ($(this).parent().attr('class') == 'MasterAction'){
+    //           $(this).css('background', '#93E222');
+    //         }
+    //       }
+    //     }
+    //   );
+    // })
     tds = $('.UnreadArticles').parent().parent().children();
     tds.each(
       function(index){
