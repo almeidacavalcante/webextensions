@@ -30,6 +30,10 @@ function beginScript() {
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
   ]
 
+  
+
+
+
   // OFFLINE
   // monitoredUrls = [
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
@@ -37,7 +41,7 @@ function beginScript() {
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
   // ]
 
-  
+
 
 
 
@@ -62,12 +66,22 @@ function beginScript() {
     setupButtonsAndActions();
     setupRowButtons();
     highlightUnreadedArticles();
+
+  } else if (location.href.includes('index.pl?Action=AgentTicketNote') && location.href.includes('#iniciar-atendimento')) {
+      addNote();
   } else if (location.href.includes('index.pl?Action=AgentTicketSearch') ||
     location.href.includes('index.pl?Action=AgentDashboard') ||
     location.href.includes('index.pl?')) {
     setupRowButtons();
     highlightUnreadedArticles();
-  }
+  } 
+}
+
+function addNote(){
+  document.getElementById('RichText').value = 'Chamado em atendimento';
+  //Value of "Email externo" == 1
+  document.getElementById('ArticleTypeID').value = 1;
+  document.getElementById('submitRichText').click();
 }
 
 function reloadPeriodically(miliseconds){
@@ -288,7 +302,7 @@ function highlightUnreadedArticles() {
     tds = $('.UnreadArticles').parent().parent().children();
     tds.each(
       function(index){
-        if ($(this).parent().attr('class') == 'MasterAction Even') {
+        if ($(this).parent().attr('class') == 'MasterAction Even' || $(this).parent().attr('class') == 'MasterAction Even Last') {
           $(this).css('background', '#6FCEC3');
         }else{
           if ($(this).parent().attr('class') == 'MasterAction'){
@@ -378,7 +392,95 @@ function changeProperty() {
 function setupButtonsAndActions() {
   changeFeatureName('a', 'Proprietário', '<b>TORNAR-SE PROPRIETÁRIO</b>');
   changeFeatureName('a', 'Fechar', '<b>FINALIZAR</b>');
+  createButonMoverGirs()
+  createButton('INICIAR ATENDIMENTO');
+}
 
+function createButton(buttonName){
+  var newItem = document.createElement('LI');       // Create a <li> node
+  var textnode = document.createTextNode(buttonName);  // Create a text node
+  
+  var url = window.location.href;
+  var id = getAllUrlParams(url)
+  
+  
+  var link = document.createElement('A');
+  link.className = 'moverGirsLink';
+  link.href = 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketNote;TicketID='+id.ticketid+'#iniciar-atendimento';
+
+  var bold = document.createElement('B');
+  
+  link.appendChild(bold);
+  bold.appendChild(textnode);
+  newItem.appendChild(link);
+
+  var list = document.getElementsByClassName('Actions');
+  list[0].insertBefore(newItem, list[0].childNodes[17]);
+}
+
+function getAllUrlParams(url) {
+
+  // get query string from url (optional) or window
+  var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+
+  // we'll store the parameters here
+  var obj = {};
+
+  // if query string exists
+  if (queryString) {
+
+    // stuff after # is not part of query string, so get rid of it
+    queryString = queryString.split('#')[0];
+
+    // split our query string into its component parts
+    var arr = queryString.split(';');
+
+    for (var i=0; i<arr.length; i++) {
+      // separate the keys and the values
+      var a = arr[i].split('=');
+
+      // in case params look like: list[]=thing1&list[]=thing2
+      var paramNum = undefined;
+      var paramName = a[0].replace(/\[\d*\]/, function(v) {
+        paramNum = v.slice(1,-1);
+        return '';
+      });
+
+      // set parameter value (use 'true' if empty)
+      var paramValue = typeof(a[1])==='undefined' ? true : a[1];
+
+      // (optional) keep case consistent
+      paramName = paramName.toLowerCase();
+      paramValue = paramValue.toLowerCase();
+
+      // if parameter name already exists
+      if (obj[paramName]) {
+        // convert value to array (if still string)
+        if (typeof obj[paramName] === 'string') {
+          obj[paramName] = [obj[paramName]];
+        }
+        // if no array index number specified...
+        if (typeof paramNum === 'undefined') {
+          // put the value on the end of the array
+          obj[paramName].push(paramValue);
+        }
+        // if array index number specified...
+        else {
+          // put the value at that index number
+          obj[paramName][paramNum] = paramValue;
+        }
+      }
+      // if param name doesn't exist yet, set it
+      else {
+        obj[paramName] = paramValue;
+      }
+    }
+  }
+
+  return obj;
+}
+
+function createButonMoverGirs(){
   var newItem = document.createElement('LI');       // Create a <li> node
   var textnode = document.createTextNode('MOVER (GIRS)');  // Create a text node
 

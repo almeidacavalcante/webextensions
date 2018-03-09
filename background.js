@@ -58,24 +58,42 @@ function treatContentEvent(articles){
 
 }
 
-function fetchConfigurations(){
-    print('** FETCH CONFIGURATIONS **');
+function verifyConfiguration(){
     var rootRef = firebase.database().ref();
     var configRef = rootRef.child('configurations/responsible_for');
-    var newConfigRef = configRef.push();
 
-    newConfigRef.set({
-        "ticket_1" : 0,
-        "ticket_2" : 0,
-        "ticket_3" : 0,
-        "ticket_4" : "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004",
-        "ticket_5" : "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205",
-        "ticket_6" : "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206",
-        "ticket_7" : 0,
-        "ticket_8" : 0,
-        "ticket_9" : 0,
-        "ticket_0" : 0
-    });
+    promise = configRef.once("value")
+    
+    return promise
+}
+
+function fetchConfigurations(){
+    print('** FETCH CONFIGURATIONS **');
+
+    var promise = verifyConfiguration();
+
+    promise.then(function(snapshot){
+        if (snapshot.numChildren() == 0){
+            var rootRef = firebase.database().ref();
+            var configRef = rootRef.child('configurations/responsible_for');
+            var newConfigRef = configRef.push();
+        
+            newConfigRef.set({
+                "ticket_1" : 0,
+                "ticket_2" : 0,
+                "ticket_3" : 0,
+                "ticket_4" : "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004",
+                "ticket_5" : "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205",
+                "ticket_6" : "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206",
+                "ticket_7" : 0,
+                "ticket_8" : 0,
+                "ticket_9" : 0,
+                "ticket_0" : 0
+            });
+        } else {
+            console.log("CONFIGURATION IS DONE");
+        }
+    })
 }
 
 function getStatus(articles){
@@ -205,9 +223,7 @@ function notify(message){
 
                 notification.onclick = function (event){
                     console.log(event);
-                    // window.open(message.href, '_blank');
-                    window.open(message.href, '_blank','width=800,height=600,toolbar=1,menubar=1,location=0');
-                    //window.open(message.href, 'New Popup',height=100,width=100);
+                    window.open(message.href, '_blank','width='+screen.width+',height='+screen.height+',toolbar=1,menubar=1,location=0');
                     chrome.tabs.sendMessage(tabId,
                         {
                             messageObject: message,
