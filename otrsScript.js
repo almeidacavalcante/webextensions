@@ -58,6 +58,15 @@ function beginScript() {
     miliseconds = 1 * 60000;
     reloadPeriodically(miliseconds);
 
+  } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO')){
+    identifyTicketAndRemoveTr();
+    onReloadCheck();
+    setupRowButtons();
+    highlightUnreadedArticles();
+
+    miliseconds = 1 * 60000;
+    reloadPeriodically(miliseconds);
+
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
   } else if (location.href.includes('index.pl?Action=AgentTicketOwner;TicketID=')) {
@@ -75,6 +84,26 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
   } 
+}
+
+function identifyTicketAndRemoveTr(){
+    tickets = []
+    //Populate the JSON Array
+    console.log($('tr.MasterAction'))
+    $('tr.MasterAction').each(function(index){
+      ticket = $(this)[0].children[3].children[0].innerText
+      changedTicket = ticket
+      
+      for(i=0; i<6; i++){
+        if(changedTicket.slice(-1) === '0') {
+          changedTicket = changedTicket.substr(0, changedTicket.length - 1);
+        }
+      }
+
+      if (changedTicket.slice(-1) != '4' && changedTicket.slice(-1) != '5' && changedTicket.slice(-1) != '6'){
+        $(this).remove()
+      }
+    })
 }
 
 function addNote(){
@@ -207,6 +236,8 @@ function onReloadCheck(){
     pageNumber = 5;
   } else if (location.href == urls[2]) {
     pageNumber = 6;
+  } else {
+    pageNumber = 0;
   }
 
 
@@ -325,6 +356,7 @@ function setupRowButtons() {
   setupMainButtons('Final-06', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206');
   setupMainButtons('Final-05', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205');
   setupMainButtons('Final-04', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004');
+  setupMainButtons('Final-ZERO', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO');
   insertStyle();
 
 }

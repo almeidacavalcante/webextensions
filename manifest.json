@@ -23,7 +23,6 @@
   },
 
   "permissions": [
-    "desktopCapture",
     "notifications",
     "tabs",
     "activeTab",
