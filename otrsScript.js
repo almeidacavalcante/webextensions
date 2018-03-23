@@ -55,7 +55,7 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 1 * 60000;
+    miliseconds = 2 * 60000;
     reloadPeriodically(miliseconds);
 
   } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO')){
@@ -64,9 +64,11 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
 
-    miliseconds = 1 * 60000;
+    miliseconds = 2 * 60000;
     reloadPeriodically(miliseconds);
-
+  
+  } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente')){
+    document.title = "FECHADOS";
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
   } else if (location.href.includes('index.pl?Action=AgentTicketOwner;TicketID=')) {
@@ -75,21 +77,34 @@ function beginScript() {
     setupButtonsAndActions();
     setupRowButtons();
     highlightUnreadedArticles();
-
   } else if (location.href.includes('index.pl?Action=AgentTicketNote') && location.href.includes('#iniciar-atendimento')) {
       addNote();
+  } else if (location.href.includes('index.pl?ChallengeToken=')){ 
+    setupBlankAnswer();
   } else if (location.href.includes('index.pl?Action=AgentTicketSearch') ||
-    location.href.includes('index.pl?Action=AgentDashboard') ||
-    location.href.includes('index.pl?')) {
+    location.href.includes('index.pl?Action=AgentDashboard')) {
     setupRowButtons();
     highlightUnreadedArticles();
   } 
 }
 
+function setupBlankAnswer(){
+  document.getElementById('RichText').focus();
+  //Value of "Email externo" == 1
+  $('select#StateID')[0].value = 13
+  document.getElementById('ArticleTypeID').value = 1;
+  //document.getElementById('submitRichText').click();
+}
+
+function recalculatePaginationNumber(count){
+  $('span.Pagination').html('<h1><b>' + count + '</b></h1>')
+  console.log('COUNT:'+count);
+}
+
 function identifyTicketAndRemoveTr(){
-    tickets = []
-    //Populate the JSON Array
-    console.log($('tr.MasterAction'))
+    
+    var count = 0
+
     $('tr.MasterAction').each(function(index){
       ticket = $(this)[0].children[3].children[0].innerText
       changedTicket = ticket
@@ -102,13 +117,18 @@ function identifyTicketAndRemoveTr(){
 
       if (changedTicket.slice(-1) != '4' && changedTicket.slice(-1) != '5' && changedTicket.slice(-1) != '6'){
         $(this).remove()
+      }else{
+        count += 1;
       }
     })
+
+    recalculatePaginationNumber(count);
 }
 
 function addNote(){
   document.getElementById('RichText').value = 'Chamado em atendimento';
   //Value of "Email externo" == 1
+  //$('select#StateID')[0].value = 13
   document.getElementById('ArticleTypeID').value = 1;
   document.getElementById('submitRichText').click();
 }
@@ -232,12 +252,16 @@ function onReloadCheck(){
 
   if (location.href == urls[0]){
     pageNumber = 4;
+    document.title = "Fila 04"
   } else if (location.href == urls[1]) {
     pageNumber = 5;
+    document.title = "Fila 05"
   } else if (location.href == urls[2]) {
     pageNumber = 6;
+    document.title = "Fila 06"
   } else {
     pageNumber = 0;
+    document.title = "Fila ZERO"
   }
 
 
@@ -314,22 +338,8 @@ function highlightUnreadedArticles() {
   //Na página AgentTicketZoom, tem uma estrela, mas não quero destacá-la
   //por isso essa consulta se o parent dela tem a classe Last
 
+
   if ($('.UnreadArticles').parent().attr('class') != 'Last') {
-    // $('.UnreadArticles').mouseover(function(){
-    //   console.log("MOUSE OVER!");
-    //   tds = $('.UnreadArticles');
-    //   tds.each(
-    //     function(index){
-    //       if ($(this).parent().attr('class') == 'MasterAction Even') {
-    //         $(this).css('background', '#6FC000');
-    //       }else{
-    //         if ($(this).parent().attr('class') == 'MasterAction'){
-    //           $(this).css('background', '#93E222');
-    //         }
-    //       }
-    //     }
-    //   );
-    // })
     tds = $('.UnreadArticles').parent().parent().children();
     tds.each(
       function(index){
@@ -378,12 +388,16 @@ function setupMainButtons(buttonName, href) {
   newItem.appendChild(link);
 
   var list = document.getElementById('Navigation');
+  console.log("SETUP MAIN BUTTONS");
+  
   list.insertBefore(newItem, list.childNodes[7]);
 }
 
 // Submit form de mover
-function submitFormWithValue(value) {
-  select = document.getElementById('DestQueueID');
+//DestQueueID
+function submitFormWithValue(value, id) {
+  //select = document.getElementById(id);
+  select = $('select'+id)[0]
   select.value = value;
   form = select.parentNode;
   form.submit();
@@ -425,6 +439,7 @@ function setupButtonsAndActions() {
   changeFeatureName('a', 'Proprietário', '<b>TORNAR-SE PROPRIETÁRIO</b>');
   changeFeatureName('a', 'Fechar', '<b>FINALIZAR</b>');
   createButonMoverGirs()
+  createButtonRespostaEmBranco();
   createButton('INICIAR ATENDIMENTO');
 }
 
@@ -512,6 +527,27 @@ function getAllUrlParams(url) {
   return obj;
 }
 
+function createButtonRespostaEmBranco(){
+  var newItem = document.createElement('LI');       // Create a <li> node
+  var textnode = document.createTextNode('RESPOSTA EM BRANCO');  // Create a text node
+
+  var link = document.createElement('A');
+  link.className = 'moverGirsLink';
+  link.href = '#';
+  link.onclick = function () {
+    submitFormWithValue(1, '#ResponseID');
+  };
+
+  var bold = document.createElement('B');
+
+  link.appendChild(bold);
+  bold.appendChild(textnode);
+  newItem.appendChild(link);
+
+  var list = document.getElementsByClassName('Actions');
+  list[0].insertBefore(newItem, list[0].childNodes[17]);
+}
+
 function createButonMoverGirs(){
   var newItem = document.createElement('LI');       // Create a <li> node
   var textnode = document.createTextNode('MOVER (GIRS)');  // Create a text node
@@ -520,7 +556,7 @@ function createButonMoverGirs(){
   link.className = 'moverGirsLink';
   link.href = '#';
   link.onclick = function () {
-    submitFormWithValue(14);
+    submitFormWithValue(14, '#DestQueueID');
   };
 
   var bold = document.createElement('B');

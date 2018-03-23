@@ -195,7 +195,7 @@ function notifyMe(message){
 function notify(message){
 
     var notification = new Notification(message.title, {
-        icon: 'icons/lucifer-48.png',
+        icon: 'icons/message-40.png',
         body: message.body,
         ticket: message.ticket
     })
