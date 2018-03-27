@@ -27,12 +27,9 @@ function beginScript() {
   monitoredUrls = [
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206',
+    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
   ]
-
-  
-
-
 
   // OFFLINE
   // monitoredUrls = [
@@ -41,24 +38,11 @@ function beginScript() {
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
   // ]
 
-
-
-
-
   if (location.href.includes(monitoredUrls[0]) ||
       location.href.includes(monitoredUrls[1]) ||
-      location.href.includes(monitoredUrls[2])) {
+      location.href.includes(monitoredUrls[2]) || 
+      location.href.includes(monitoredUrls[3]) ){
 
-    console.log("THE BEGINING...");
-
-    onReloadCheck();
-    setupRowButtons();
-    highlightUnreadedArticles();
-
-    miliseconds = 2 * 60000;
-    reloadPeriodically(miliseconds);
-
-  } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO')){
     identifyTicketAndRemoveTr();
     onReloadCheck();
     setupRowButtons();
@@ -66,8 +50,19 @@ function beginScript() {
 
     miliseconds = 2 * 60000;
     reloadPeriodically(miliseconds);
+
+  } 
   
-  } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente')){
+  // else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO')){
+  //   identifyTicketAndRemoveTr();
+  //   onReloadCheck();
+  //   setupRowButtons();
+  //   highlightUnreadedArticles();
+
+  //   miliseconds = 2 * 60000;
+  //   reloadPeriodically(miliseconds);
+  
+    else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente')){
     document.title = "FECHADOS";
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
@@ -438,7 +433,8 @@ function changeProperty() {
 function setupButtonsAndActions() {
   changeFeatureName('a', 'Proprietário', '<b>TORNAR-SE PROPRIETÁRIO</b>');
   changeFeatureName('a', 'Fechar', '<b>FINALIZAR</b>');
-  createButonMoverGirs()
+  createButonMover('MOVER (GIRS)', 14)
+  createButonMover('MOVER (BANCADA)', 10)
   createButtonRespostaEmBranco();
   createButton('INICIAR ATENDIMENTO');
 }
@@ -557,6 +553,27 @@ function createButonMoverGirs(){
   link.href = '#';
   link.onclick = function () {
     submitFormWithValue(14, '#DestQueueID');
+  };
+
+  var bold = document.createElement('B');
+
+  link.appendChild(bold);
+  bold.appendChild(textnode);
+  newItem.appendChild(link);
+
+  var list = document.getElementsByClassName('Actions');
+  list[0].insertBefore(newItem, list[0].childNodes[17]);
+}
+
+function createButonMover(text, formId){
+  var newItem = document.createElement('LI');       // Create a <li> node
+  var textnode = document.createTextNode(text);  // Create a text node
+
+  var link = document.createElement('A');
+  link.className = 'moverGirsLink';
+  link.href = '#';
+  link.onclick = function () {
+    submitFormWithValue(formId, '#DestQueueID');
   };
 
   var bold = document.createElement('B');
