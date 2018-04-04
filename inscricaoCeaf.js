@@ -23,7 +23,7 @@ function fillUpForm() {
     insertOnElement('inscricao:setorField:setor', 'SETOR DE ATENDIMENTO AO USUÁRIO - SAU');
     insertOnElement('inscricao:cargoField:cargo', 'TÉCNICO DO MPE');
     insertOnElement('inscricao:areaAtuacao:areaAtuacao', 'SETOR DE ATENDIMENTO AO USUÁRIO');
-    if (document.getElementById('inscricao:save').disabled == false){
+    if (document.getElementById('inscricao:save').disabled == false){ 
       
       document.getElementById('inscricao:save').click();
     }else{
