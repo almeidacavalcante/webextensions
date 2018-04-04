@@ -31,6 +31,8 @@ function beginScript() {
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
   ]
 
+  //includeCss()
+
   // OFFLINE
   // monitoredUrls = [
   //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
@@ -192,6 +194,10 @@ function createEnvironment(){
 
   delay = getRandomArbitrary(5000,11000);
   setInterval(insertOrChangeLine, delay);
+}
+
+function includeCss(){
+  //$("<link rel='stylesheet type='text/css' href='style.css' />").appendTo('head')
 }
 
 function addCSS(){
@@ -433,8 +439,10 @@ function changeProperty() {
 function setupButtonsAndActions() {
   changeFeatureName('a', 'Proprietário', '<b>TORNAR-SE PROPRIETÁRIO</b>');
   changeFeatureName('a', 'Fechar', '<b>FINALIZAR</b>');
-  createButonMover('MOVER (GIRS)', 14)
-  createButonMover('MOVER (BANCADA)', 10)
+  createButonMover('GIRS', 14, 'highlight-out')
+  createButonMover('BANCADA', 10)
+  createButonMover('CIRO', 29)
+  createButonMover('LEANDRO', 28)
   createButtonRespostaEmBranco();
   createButton('INICIAR ATENDIMENTO');
 }
@@ -565,12 +573,13 @@ function createButonMoverGirs(){
   list[0].insertBefore(newItem, list[0].childNodes[17]);
 }
 
-function createButonMover(text, formId){
+function createButonMover(text, formId, cssClass){
   var newItem = document.createElement('LI');       // Create a <li> node
   var textnode = document.createTextNode(text);  // Create a text node
+  var cssClass = cssClass || ''
 
   var link = document.createElement('A');
-  link.className = 'moverGirsLink';
+  link.className = 'moverGirsLink highlight '+cssClass+'';
   link.href = '#';
   link.onclick = function () {
     submitFormWithValue(formId, '#DestQueueID');

@@ -98,6 +98,9 @@ function fetchConfigurations(){
 
 function getStatus(articles){
     print('** GET STATUS **');
+
+
+
     var rootRef = firebase.database().ref();
     var unreadRef = rootRef.child('unreadArticles');
 

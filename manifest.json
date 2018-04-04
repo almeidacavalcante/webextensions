@@ -19,7 +19,8 @@
   "browser_action":{
     "default_icon": "img/otrs.png",
     "default_title": "Notifier",
-    "default_popup": "index.html"
+    "default_popup": "index.html",
+    "browser_style": true
   },
 
   "permissions": [
@@ -31,17 +32,25 @@
   ],
 
   "web_accessible_resources": [
-    "img/*.png"
+    "img/*.png",
+    "style.css"
   ],
+
 
   "content_scripts": [
     {
       "matches": ["https://srvapp04.mp.rn.gov.br:8443/sitesOrgaosMP/*"],
-      "js": ["inscricaoCeaf.js"]
+      "js": ["inscricaoCeaf.js"],
+      "run_at": "document_end"
     },
     {
-      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
+      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*", "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"], 
       "js": ["otrsScript.js"]
+    },
+    {
+      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"], 
+      "css": ["style.css"],
+      "run_at": "document_end"
     },
     {
       "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
@@ -51,7 +60,7 @@
     "matches":["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*", "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
     "js":["thirdParty/jquery.js", "thirdParty/attrchange.js"],
     "run_at": "document_end"
-  }
+    }
   ],
 
   "key": "mjalijpilhlcechbdikclnmlgnlmngeh",

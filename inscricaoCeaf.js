@@ -10,17 +10,31 @@ function insertOnElement(id, value) {
   document.getElementById(id).value = value;
 }
 
+
 function fillUpForm() {
-  insertOnElement('inscricao:cpfField:cpf', '077.691.084-11');
-  insertOnElement('inscricao:nomeField:nome', 'JOSÉ DE ALMEIDA CAVALCANTE NETO');
-  insertOnElement('inscricao:enderecoField:endereco', 'Av. Rui Barbosa 1100');
-  insertOnElement('inscricao:telefoneField:telefone', '84996077784');
-  insertOnElement('inscricao:emailField:email', 'jose.cavalcante@mprn.mp.br');
-  insertOnElement('inscricao:empresaField:empresa', 'Ministério Público do Rio Grande do Norte');
-  insertOnElement('inscricao:setorField:setor', 'SETOR DE ATENDIMENTO AO USUÁRIO - SAU');
-  insertOnElement('inscricao:cargoField:cargo', 'TÉCNICO DO MPE');
-  insertOnElement('inscricao:areaAtuacao:areaAtuacao', 'SETOR DE ATENDIMENTO AO USUÁRIO');
-  document.getElementById('inscricao:save').click();
+  
+  try {
+    insertOnElement('inscricao:cpfField:cpf', '077.691.084-11');
+    insertOnElement('inscricao:nomeField:nome', 'JOSÉ DE ALMEIDA CAVALCANTE NETO');
+    insertOnElement('inscricao:enderecoField:endereco', 'Av. Rui Barbosa 1100');
+    insertOnElement('inscricao:telefoneField:telefone', '84996077784');
+    insertOnElement('inscricao:emailField:email', 'jose.cavalcante@mprn.mp.br');
+    insertOnElement('inscricao:empresaField:empresa', 'Ministério Público do Rio Grande do Norte');
+    insertOnElement('inscricao:setorField:setor', 'SETOR DE ATENDIMENTO AO USUÁRIO - SAU');
+    insertOnElement('inscricao:cargoField:cargo', 'TÉCNICO DO MPE');
+    insertOnElement('inscricao:areaAtuacao:areaAtuacao', 'SETOR DE ATENDIMENTO AO USUÁRIO');
+    if (document.getElementById('inscricao:save').disabled == false){
+      
+      document.getElementById('inscricao:save').click();
+    }else{
+
+      setTimeout(() => window.location.reload(), 1000);
+    } 
+  } catch (error) {
+    console.log(error);
+    window.location.reload();
+  }
+
 }
 
 //Return the element that was found

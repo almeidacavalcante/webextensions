@@ -1,0 +1,17 @@
+.highlight {
+    background: #6FCEC3;
+    border-radius: 5px;
+}
+
+.highlight-out {
+    background: rgb(204, 206, 111);
+}
+
+.highlight.highlight-out:hover {
+    background: rgb(216, 218, 121);
+}
+
+.highlight:hover{
+    background: #93E1D8;
+    border-radius: 5px;
+}
