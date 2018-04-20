@@ -1,48 +1,4 @@
-function setupFirebase(){
-  
-    var config = {
-        apiKey: "AIzaSyBquTcxItmMfsRbkSaOcPYAmPtl9Ko97ys",
-        authDomain: "lucifer-plugin.firebaseapp.com",
-        databaseURL: "https://lucifer-plugin.firebaseio.com",
-        projectId: "lucifer-plugin",
-        storageBucket: "lucifer-plugin.appspot.com",
-        messagingSenderId: "198463203684"
-    };
-
-    try {
-        firebase.initializeApp(config);
-        email = '';
-        password = '';
-      
-        firebase.auth().signInAnonymously().catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-          
-            if (errorCode === 'auth/operation-not-allowed') {
-              alert('You must enable Anonymous auth in the Firebase Console.');
-            } else {
-              console.error(error);
-            }
-        });
-    }
-    catch(err) {
-
-    }
-
-    // firebase.auth().signInWithEmailAndPassword(email, password)
-    //         .catch(function(error) {
-    //     // Handle Errors here.
-    //     var errorCode = error.code;
-    //     var errorMessage = error.message;
-    //     if (errorCode === 'auth/wrong-password') {
-    //         alert('Wrong password.');
-    //     } else {
-    //         alert(errorMessage);
-    //     }
-    //     console.log(error);
-    // });
-}
+chrome.power.requestKeepAwake('display');
 
 chrome.runtime.onMessage.addListener(treatContentEvent);
 
@@ -51,14 +7,30 @@ var connected = false
 function treatContentEvent(articles){
     print('** TREAT CONTENT EVENT **');
     
-    setupFirebase();
+    if (articles.id == "articles"){
+    
+        let database = new Database();
+        database.setupFirebase();
+    
+        fetchConfigurations();
+    
+        getStatus(articles);
 
-    fetchConfigurations()
-    getStatus(articles)
-
+    } else if (articles.id == "counter") {
+        setupCounter(articles);
+        
+        console.log("send...");
+        
+        sendNumberOfTicketsToContentScript();
+    } 
 }
 
-function verifyConfiguration(){
+function setupCounter(articles){
+    var counter = new Counter(articles);
+    counter.save(firebase);
+}
+
+function fetchFirebaseObject(){
     var rootRef = firebase.database().ref();
     var configRef = rootRef.child('configurations/responsible_for');
 
@@ -67,11 +39,37 @@ function verifyConfiguration(){
     return promise
 }
 
+function sendNumberOfTicketsToContentScript(){
+
+    authorizedUrls = [
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206',
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
+    ]
+
+    chrome.tabs.query({},function(tabs){
+        tabs.forEach(function(tab){
+            if( tab.url == authorizedUrls[0] ||
+                tab.url == authorizedUrls[1] ||
+                tab.url == authorizedUrls[2] ||
+                tab.url == authorizedUrls[3] ){
+
+                tabId = tab.id;
+
+                console.log("***** TAB ******");
+                console.log(tab);
+                
+
+            }
+        });
+    });
+}
+
 function fetchConfigurations(){
-    print('** FETCH CONFIGURATIONS **');
 
-    var promise = verifyConfiguration();
-
+    var promise = fetchFirebaseObject();
+    
     promise.then(function(snapshot){
         if (snapshot.numChildren() == 0){
             var rootRef = firebase.database().ref();
@@ -97,15 +95,9 @@ function fetchConfigurations(){
 }
 
 function getStatus(articles){
-    print('** GET STATUS **');
-
-
 
     var rootRef = firebase.database().ref();
     var unreadRef = rootRef.child('unreadArticles');
-
-    //Comparar tickets da pagina com os do banco
-    print(articles);
 
     pageNumber = articles.pageNumber
     
@@ -138,14 +130,12 @@ function getStatus(articles){
                 }
                 notifyMe(message)
             })
-
         })
     });
-
 }
 
 function verifyNewArticles(articles, storedArticlesSnapshot){
-    return new Promise( (resolve, reject) => {
+    let promise = new Promise( (resolve, reject) => {
         newUnreadArticles = []
         unreadArticles = []
 
@@ -163,8 +153,6 @@ function verifyNewArticles(articles, storedArticlesSnapshot){
             })
 
             if (found == false) {
-                //PERSIST 
-                //NOTIFY
                 newUnreadArticles.push(element);
             } else {
                 unreadArticles.push(element);
@@ -177,6 +165,8 @@ function verifyNewArticles(articles, storedArticlesSnapshot){
             persist: unreadArticles
         })
     });
+
+    return promise;
 }
 
 function notifyMe(message){
@@ -206,7 +196,8 @@ function notify(message){
     authorizedUrls = [
         'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
         'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
-        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206',
+        'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
     ]
 
     //TODO: To make it OFFLINE
@@ -220,7 +211,8 @@ function notify(message){
         tabs.forEach(function(tab){
             if( tab.url == authorizedUrls[0] ||
                 tab.url == authorizedUrls[1] ||
-                tab.url == authorizedUrls[2] ){
+                tab.url == authorizedUrls[2] ||
+                tab.url == authorizedUrls[3] ){
 
                 tabId = tab.id;
 

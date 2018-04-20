@@ -4,14 +4,35 @@
 }
 
 .highlight-out {
-    background: rgb(204, 206, 111);
+    background: #02C39A;
 }
 
 .highlight.highlight-out:hover {
-    background: rgb(216, 218, 121);
+    background: #02EAB8;
+    
 }
 
 .highlight:hover{
     background: #93E1D8;
+    border-radius: 5px;
+}
+
+.highlight-answer{
+    background: #00A4BA;
+    border-radius: 5px;
+}
+
+.highlight-answer:hover{
+    background:rgb(0, 207, 235);
+    border-radius: 5px;
+}
+
+.highlight-start{
+    background: #E09F3E;
+    border-radius: 5px;
+}
+
+.highlight-start:hover{
+    background: #FFA319;
     border-radius: 5px;
 }

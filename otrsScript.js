@@ -31,15 +31,6 @@ function beginScript() {
     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
   ]
 
-  //includeCss()
-
-  // OFFLINE
-  // monitoredUrls = [
-  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
-  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
-  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
-  // ]
-
   if (location.href.includes(monitoredUrls[0]) ||
       location.href.includes(monitoredUrls[1]) ||
       location.href.includes(monitoredUrls[2]) || 
@@ -53,18 +44,7 @@ function beginScript() {
     miliseconds = 2 * 60000;
     reloadPeriodically(miliseconds);
 
-  } 
-  
-  // else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO')){
-  //   identifyTicketAndRemoveTr();
-  //   onReloadCheck();
-  //   setupRowButtons();
-  //   highlightUnreadedArticles();
-
-  //   miliseconds = 2 * 60000;
-  //   reloadPeriodically(miliseconds);
-  
-    else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente')){
+  } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente')){
     document.title = "FECHADOS";
   } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
     closeTitcketCall();
@@ -75,18 +55,87 @@ function beginScript() {
     setupRowButtons();
     highlightUnreadedArticles();
   } else if (location.href.includes('index.pl?Action=AgentTicketNote') && location.href.includes('#iniciar-atendimento')) {
-      addNote();
+    addNote();
   } else if (location.href.includes('index.pl?ChallengeToken=')){ 
     setupBlankAnswer();
+
+  } else if (location.href.includes('index.pl?Action=AgentTicketPhone')){
+    setupFastUnblockTicket();
+    
   } else if (location.href.includes('index.pl?Action=AgentTicketSearch') ||
     location.href.includes('index.pl?Action=AgentDashboard')) {
     setupRowButtons();
     highlightUnreadedArticles();
+  } else if (location.href.includes('index.pl?Action=AgentTicketQueue')) {
+    
+    setupRowButtons();
   } 
 }
 
+function setupUnblock(){
+  // Ctrl-Enter pressed
+  let richTextContent = "Através de contato telefônico realizei o desbloqueio da conta de usuário.";
+  let subject = "Desbloqueio da conta de usuário."
+
+  console.log($('#RichText'));
+
+  $('#RichText')[0].value = richTextContent;
+  $('#Subject')[0].value = subject;
+
+
+  var fecharValue = 2
+  $('#NextStateID')[0].value = fecharValue;
+  document.getElementById('submitRichText').click();
+}
+
+function setupReset(){
+  // Ctrl-Shift-Enter pressed
+
+  let richTextContent = "Através de ligação telefônica e mediante a confirmação dos dados cadastrais, realizei o Reset da senha do AD.";
+  let subject = "Reset de senha do AD."
+
+  console.log($('#RichText'));
+
+  $('#RichText')[0].value = richTextContent;
+  $('#Subject')[0].value = subject;
+
+
+  var fecharValue = 2
+  $('#NextStateID')[0].value = fecharValue;
+  document.getElementById('submitRichText').click();
+}
+
+function setupFastUnblockTicket(){
+  $('#RichText').keydown(function (e) {
+
+    if (e.ctrlKey && e.keyCode == 13 && e.shiftKey && e.altKey) {
+
+      setupUnblock();
+
+    } else if (e.ctrlKey && e.keyCode == 13 && e.shiftKey) {
+
+      setupReset();
+
+    } 
+  });
+}
+
 function setupBlankAnswer(){
+
+  $('#RichText').keydown(function (e) {
+  
+    if (e.ctrlKey && e.keyCode == 13 && e.shiftKey) {
+      // Ctrl-Shift-Enter pressed
+      var fecharValue = 2
+      $('#StateID')[0].value = fecharValue;
+      document.getElementById('submitRichText').click();
+    } else if (e.ctrlKey && e.keyCode == 13) {
+      // Ctrl-Enter pressed
+      document.getElementById('submitRichText').click();
+    }  
+  });
   document.getElementById('RichText').focus();
+
   //Value of "Email externo" == 1
   $('select#StateID')[0].value = 13
   document.getElementById('ArticleTypeID').value = 1;
@@ -94,14 +143,13 @@ function setupBlankAnswer(){
 }
 
 function recalculatePaginationNumber(count){
-  $('span.Pagination').html('<h1><b>' + count + '</b></h1>')
+  $('span.Pagination').html('<h1><b id="quantity">' + count + '</b></h1>')
   console.log('COUNT:'+count);
 }
 
 function identifyTicketAndRemoveTr(){
     
     var count = 0
-
     $('tr.MasterAction').each(function(index){
       ticket = $(this)[0].children[3].children[0].innerText
       changedTicket = ticket
@@ -145,63 +193,13 @@ function insertOrChangeLine(){
   trs.eq(randomNumber).attr('id', 'unread');
 }
 
-function createEnvironment(){
-  $('span#body.ctr-p').remove();
-  $('div#searchform.jhp').remove();
-  $('div.fbar').remove();
-
-  $(`
-  <table id="searchform" class="" style="width:100%">
-    <tr>
-      <th>Ticket</th>
-      <th>Client</th> 
-      <th>Subject</th>
-    </tr>
-    <tr>
-      <td>#70119901</td>
-      <td>Smith</td> 
-      <td>Computer doesnt start</td>
-    </tr>
-    <tr>
-      <td>#70119912</td>
-      <td>Jackson</td> 
-      <td>I need a mousepad</td>
-    </tr>
-    <tr>
-      <td>#70119922</td>
-      <td>Livia</td> 
-      <td>I need a monitor</td>
-    </tr>
-    <tr>
-      <td>#70111234</td>
-      <td>Mark</td> 
-      <td>Reset my password</td>
-    </tr>
-    <tr>
-      <td>#70114321</td>
-      <td>Jackson</td> 
-      <td>I need a mousepad</td>
-    </tr>
-    <tr>
-      <td>#70111324</td>
-      <td>Livia</td> 
-      <td>I need a monitor</td>
-    </tr>
-  </table>
-  `).appendTo('div#main.content');
-
-  addCSS();
-
-  delay = getRandomArbitrary(5000,11000);
-  setInterval(insertOrChangeLine, delay);
-}
-
 function includeCss(){
   //$("<link rel='stylesheet type='text/css' href='style.css' />").appendTo('head')
 }
 
 function addCSS(){
 
+  
   $("<style type='text/css'> #unread{ background-color: #43C59E;} </style>").appendTo("head");
 
   $('table, th, td').css(
@@ -265,11 +263,16 @@ function onReloadCheck(){
     document.title = "Fila ZERO"
   }
 
-
-  console.log(JSON.stringify(unreadArticlesJSON,null,4));
   chrome.runtime.sendMessage({
+    id: 'articles',
     unreadArticlesJSON: unreadArticlesJSON,
-    pageNumber: pageNumber  
+    pageNumber: pageNumber,
+  });
+
+  chrome.runtime.sendMessage({
+    id: 'counter',
+    numberOfTickets: document.querySelector("#quantity").textContent,
+    pageNumber: pageNumber,
   });
 }
 
@@ -456,7 +459,7 @@ function createButton(buttonName){
   
   
   var link = document.createElement('A');
-  link.className = 'moverGirsLink';
+  link.className = 'moverGirsLink highlight-start';
   link.href = 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketNote;TicketID='+id.ticketid+'#iniciar-atendimento';
 
   var bold = document.createElement('B');
@@ -531,17 +534,34 @@ function getAllUrlParams(url) {
   return obj;
 }
 
+function selectFirstClientComment(domPath) {
+
+  var promise = new Promise(function(resolve, reject) {
+    $(domPath)[1].click()
+  });
+
+   
+  return promise
+}
+
 function createButtonRespostaEmBranco(){
   var newItem = document.createElement('LI');       // Create a <li> node
   var textnode = document.createTextNode('RESPOSTA EM BRANCO');  // Create a text node
 
   var link = document.createElement('A');
-  link.className = 'moverGirsLink';
+  link.className = 'moverGirsLink highlight-answer';
   link.href = '#';
-  link.onclick = function () {
-    submitFormWithValue(1, '#ResponseID');
-  };
+  link.onclick = function() {
+    selectFirstClientComment('tbody #Row1 td div')
 
+    
+    setTimeout(() => {
+      submitFormWithValue(1, '#ResponseID')
+    }, 200);
+
+    
+  };
+ 
   var bold = document.createElement('B');
 
   link.appendChild(bold);

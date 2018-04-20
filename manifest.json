@@ -12,7 +12,15 @@
 
   "background":
   {
-      "scripts": ["thirdParty/jquery.js", "background.js", "thirdParty/attrchange.js", "firebase.js"],
+      "scripts": [
+        "thirdParty/jquery.js", 
+        "background.js", 
+        "thirdParty/attrchange.js", 
+        "firebase.js",
+        "app/controllers/CounterController.js",
+        "app/models/Counter.js",
+        "app/models/Database.js"
+      ],
       "persistent": true
   },
 
@@ -28,7 +36,8 @@
     "tabs",
     "activeTab",
     "storage",
-    "identity"
+    "identity",
+    "power"
   ],
 
   "web_accessible_resources": [
