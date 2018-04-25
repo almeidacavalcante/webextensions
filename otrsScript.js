@@ -1,188 +1,114 @@
+let menuView = new MenuView();
+let router = new Router();
 beginScript();
 
 
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-
-//   message = {
-//     title: 'New movimentation',
-//     body: 'Ticket: ' + unreadArticle.ticket,
-//     href: unreadArticle.unreadArticleUrl,
-//     ticket: unreadArticle.ticket
-//   }
-    
     readArticleByTicket(request.messageObject.ticket);
-
-    log('CONTENT-SCRIP: RECEIVED');
 });
 
 function readArticleByTicket(ticket){
-  log('TICKET NUMBER: ' + ticket)
   $('td:contains('+ticket+')').parent().removeAttr('id');
 }
 
+
+
 function beginScript() {
-
-  monitoredUrls = [
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206',
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
-  ]
-
-  if (location.href.includes(monitoredUrls[0]) ||
-      location.href.includes(monitoredUrls[1]) ||
-      location.href.includes(monitoredUrls[2]) || 
-      location.href.includes(monitoredUrls[3]) ){
-
-    identifyTicketAndRemoveTr();
-    onReloadCheck();
-    setupRowButtons();
-    highlightUnreadedArticles();
-
-    miliseconds = 2 * 60000;
-    reloadPeriodically(miliseconds);
-
-  } else if (location.href.includes('http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente')){
-    document.title = "FECHADOS";
-  } else if (location.href.includes('index.pl?Action=AgentTicketClose;TicketID=')) {
-    closeTitcketCall();
-  } else if (location.href.includes('index.pl?Action=AgentTicketOwner;TicketID=')) {
-    changeProperty();
-  } else if (location.href.includes('index.pl?Action=AgentTicketZoom;TicketID=')) {
-    setupButtonsAndActions();
-    setupRowButtons();
-    highlightUnreadedArticles();
-  } else if (location.href.includes('index.pl?Action=AgentTicketNote') && location.href.includes('#iniciar-atendimento')) {
-    addNote();
-  } else if (location.href.includes('index.pl?ChallengeToken=')){ 
-    setupBlankAnswer();
-
-  } else if (location.href.includes('index.pl?Action=AgentTicketPhone')){
-    setupFastUnblockTicket();
-    
-  } else if (location.href.includes('index.pl?Action=AgentTicketSearch') ||
-    location.href.includes('index.pl?Action=AgentDashboard')) {
-    setupRowButtons();
-    highlightUnreadedArticles();
-  } else if (location.href.includes('index.pl?Action=AgentTicketQueue')) {
-    
-    setupRowButtons();
-  } 
+    router.init();
+    menuView.setupRowButtons();
 }
 
-function setupUnblock(){
-  // Ctrl-Enter pressed
-  let richTextContent = "Através de contato telefônico realizei o desbloqueio da conta de usuário.";
-  let subject = "Desbloqueio da conta de usuário."
+// function setupUnblock(){
+//   // Ctrl-Enter pressed
+//   let richTextContent = "Através de contato telefônico realizei o desbloqueio da conta de usuário.";
+//   let subject = "Desbloqueio da conta de usuário."
 
-  console.log($('#RichText'));
+//   console.log($('#RichText'));
 
-  $('#RichText')[0].value = richTextContent;
-  $('#Subject')[0].value = subject;
+//   $('#RichText')[0].value = richTextContent;
+//   $('#Subject')[0].value = subject;
+
+//   var fecharValue = 2
+//   $('#NextStateID')[0].value = fecharValue;
+//   document.getElementById('submitRichText').click();
+// }
+
+// function setupReset(){
+//   // Ctrl-Shift-Enter pressed
+
+//   let richTextContent = "Através de ligação telefônica e mediante a confirmação dos dados cadastrais, realizei o Reset da senha do AD.";
+//   let subject = "Reset de senha do AD."
+
+//   console.log($('#RichText'));
+
+//   $('#RichText')[0].value = richTextContent;
+//   $('#Subject')[0].value = subject;
 
 
-  var fecharValue = 2
-  $('#NextStateID')[0].value = fecharValue;
-  document.getElementById('submitRichText').click();
-}
+//   var fecharValue = 2
+//   $('#NextStateID')[0].value = fecharValue;
+//   document.getElementById('submitRichText').click();
+// }
 
-function setupReset(){
-  // Ctrl-Shift-Enter pressed
+// function setupFastUnblockTicket(){
+//   $('#RichText').keydown(function (e) {
 
-  let richTextContent = "Através de ligação telefônica e mediante a confirmação dos dados cadastrais, realizei o Reset da senha do AD.";
-  let subject = "Reset de senha do AD."
+//     if (e.ctrlKey && e.keyCode == 13 && e.shiftKey && e.altKey) {
 
-  console.log($('#RichText'));
+//       setupUnblock();
 
-  $('#RichText')[0].value = richTextContent;
-  $('#Subject')[0].value = subject;
+//     } else if (e.ctrlKey && e.keyCode == 13 && e.shiftKey) {
 
+//       setupReset();
 
-  var fecharValue = 2
-  $('#NextStateID')[0].value = fecharValue;
-  document.getElementById('submitRichText').click();
-}
+//     } 
+//   });
+// }
 
-function setupFastUnblockTicket(){
-  $('#RichText').keydown(function (e) {
+// function setupBlankAnswer(){
 
-    if (e.ctrlKey && e.keyCode == 13 && e.shiftKey && e.altKey) {
-
-      setupUnblock();
-
-    } else if (e.ctrlKey && e.keyCode == 13 && e.shiftKey) {
-
-      setupReset();
-
-    } 
-  });
-}
-
-function setupBlankAnswer(){
-
-  $('#RichText').keydown(function (e) {
+//   $('#RichText').keydown(function (e) {
   
-    if (e.ctrlKey && e.keyCode == 13 && e.shiftKey) {
-      // Ctrl-Shift-Enter pressed
-      var fecharValue = 2
-      $('#StateID')[0].value = fecharValue;
-      document.getElementById('submitRichText').click();
-    } else if (e.ctrlKey && e.keyCode == 13) {
-      // Ctrl-Enter pressed
-      document.getElementById('submitRichText').click();
-    }  
-  });
-  document.getElementById('RichText').focus();
+//     if (e.ctrlKey && e.keyCode == 13 && e.shiftKey) {
+//       // Ctrl-Shift-Enter pressed
+//       var fecharValue = 2
+//       $('#StateID')[0].value = fecharValue;
+//       document.getElementById('submitRichText').click();
+//     } else if (e.ctrlKey && e.keyCode == 13) {
+//       // Ctrl-Enter pressed
+//       document.getElementById('submitRichText').click();
+//     }  
+//   });
+//   document.getElementById('RichText').focus();
 
-  //Value of "Email externo" == 1
-  $('select#StateID')[0].value = 13
-  document.getElementById('ArticleTypeID').value = 1;
-  //document.getElementById('submitRichText').click();
-}
+//   //Value of "Email externo" == 1
+//   $('select#StateID')[0].value = 13
+//   document.getElementById('ArticleTypeID').value = 1;
+//   //document.getElementById('submitRichText').click();
+// }
 
-function recalculatePaginationNumber(count){
-  $('span.Pagination').html('<h1><b id="quantity">' + count + '</b></h1>')
-  console.log('COUNT:'+count);
-}
+// function recalculatePaginationNumber(count){
+//   $('span.Pagination').html('<h1><b id="quantity">' + count + '</b></h1>')
+//   console.log('COUNT:'+count);
+// }
 
-function identifyTicketAndRemoveTr(){
-    
-    var count = 0
-    $('tr.MasterAction').each(function(index){
-      ticket = $(this)[0].children[3].children[0].innerText
-      changedTicket = ticket
-      
-      for(i=0; i<6; i++){
-        if(changedTicket.slice(-1) === '0') {
-          changedTicket = changedTicket.substr(0, changedTicket.length - 1);
-        }
-      }
 
-      if (changedTicket.slice(-1) != '4' && changedTicket.slice(-1) != '5' && changedTicket.slice(-1) != '6'){
-        $(this).remove()
-      }else{
-        count += 1;
-      }
-    })
 
-    recalculatePaginationNumber(count);
-}
+// function addNote(){
+//   document.getElementById('RichText').value = 'Chamado em atendimento';
+//   //Value of "Email externo" == 1
+//   //$('select#StateID')[0].value = 13
+//   document.getElementById('ArticleTypeID').value = 1;
+//   document.getElementById('submitRichText').click();
+// }
 
-function addNote(){
-  document.getElementById('RichText').value = 'Chamado em atendimento';
-  //Value of "Email externo" == 1
-  //$('select#StateID')[0].value = 13
-  document.getElementById('ArticleTypeID').value = 1;
-  document.getElementById('submitRichText').click();
-}
-
-function reloadPeriodically(miliseconds){
-  setInterval(function() {
-    window.location.reload();
-  }, miliseconds); 
-}
+// function reloadPeriodically(miliseconds){
+//   setInterval(function() {
+//     window.location.reload();
+//   }, miliseconds); 
+// }
 
 function insertOrChangeLine(){
   trs = $('table#searchform tbody').children();
@@ -216,65 +142,51 @@ function addCSS(){
   )
 }
 
-function onReloadCheck(){
+// function onReloadCheck(){
 
-  // TEXT (CHAMADO)
-  //console.log($('td.UnreadArticles').parent()[0].children[3].children[0].innerText);
+//   //JSON Array Object
+//   unreadArticlesJSON = [];
 
-  // URL (CHAMADO)
-  //console.log($('td.UnreadArticles').parent()[0].children[3].children[0].href);
+//   //Populate the JSON Array
+//   $('td.UnreadArticles').parent().each(function(index){
+//     unreadArticlesJSON.push({
+//       ticket: $(this)[0].children[3].children[0].innerText,
+//       href: $(this)[0].children[3].children[0].href
+//     })
+//   })
 
-  //JSON Array Object
-  unreadArticlesJSON = [];
+//   urls = [
+//     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
+//     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
+//     'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
+//   ]
 
-  //Populate the JSON Array
-  $('td.UnreadArticles').parent().each(function(index){
-    unreadArticlesJSON.push({
-      ticket: $(this)[0].children[3].children[0].innerText,
-      href: $(this)[0].children[3].children[0].href
-    })
-  })
+//   if (location.href == urls[0]){
+//     pageNumber = 4;
+//     document.title = "Fila 04"
+//   } else if (location.href == urls[1]) {
+//     pageNumber = 5;
+//     document.title = "Fila 05"
+//   } else if (location.href == urls[2]) {
+//     pageNumber = 6;
+//     document.title = "Fila 06"
+//   } else {
+//     pageNumber = 0;
+//     document.title = "Fila ZERO"
+//   }
 
-  urls = [
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
-    'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
-  ]
+//   chrome.runtime.sendMessage({
+//     id: 'articles',
+//     unreadArticlesJSON: unreadArticlesJSON,
+//     pageNumber: pageNumber,
+//   });
 
-  // OFFLINE
-  // urls = [
-  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
-  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
-  //   'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
-  // ]
-
-
-  if (location.href == urls[0]){
-    pageNumber = 4;
-    document.title = "Fila 04"
-  } else if (location.href == urls[1]) {
-    pageNumber = 5;
-    document.title = "Fila 05"
-  } else if (location.href == urls[2]) {
-    pageNumber = 6;
-    document.title = "Fila 06"
-  } else {
-    pageNumber = 0;
-    document.title = "Fila ZERO"
-  }
-
-  chrome.runtime.sendMessage({
-    id: 'articles',
-    unreadArticlesJSON: unreadArticlesJSON,
-    pageNumber: pageNumber,
-  });
-
-  chrome.runtime.sendMessage({
-    id: 'counter',
-    numberOfTickets: document.querySelector("#quantity").textContent,
-    pageNumber: pageNumber,
-  });
-}
+//   chrome.runtime.sendMessage({
+//     id: 'counter',
+//     numberOfTickets: document.querySelector("#quantity").textContent,
+//     pageNumber: pageNumber,
+//   });
+// }
 
 function returnRandomSubGroup(articles){
     console.log(JSON.stringify(articles, null, 4));
@@ -338,64 +250,9 @@ function getRandomArbitrary(min, max) {
   return Math.floor(Math.random() * max) + min  
 }
 
-function highlightUnreadedArticles() {
-  //Na página AgentTicketZoom, tem uma estrela, mas não quero destacá-la
-  //por isso essa consulta se o parent dela tem a classe Last
+// 
 
 
-  if ($('.UnreadArticles').parent().attr('class') != 'Last') {
-    tds = $('.UnreadArticles').parent().parent().children();
-    tds.each(
-      function(index){
-        if ($(this).parent().attr('class') == 'MasterAction Even' || $(this).parent().attr('class') == 'MasterAction Even Last') {
-          $(this).css('background', '#6FCEC3');
-        }else{
-          if ($(this).parent().attr('class') == 'MasterAction'){
-            $(this).css('background', '#93E1D8');
-          }
-        }
-      }
-    );
-  }
-}
-
-function insertStyle() {
-  //$('#Header').css('height', '110px');
-  $('#NavigationContainer').css('height', '70px');
-  $('#Navigation').css('width', '100%');
-}
-
-function setupRowButtons() {
-  setupMainButtons('Fechados', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente');
-  setupMainButtons('Final-06', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206');
-  setupMainButtons('Final-05', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205');
-  setupMainButtons('Final-04', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004');
-  setupMainButtons('Final-ZERO', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO');
-  insertStyle();
-
-}
-
-//Setup main setupButtons
-function setupMainButtons(buttonName, href) {
-  var newItem = document.createElement('LI');
-  newItem.className = 'CanDrag Even ui-sortable-handle';
-  newItem.setAttribute('aria-controls', 'nav-Survey-container');
-  newItem.setAttribute('aria-expanded', 'false');
-  newItem.setAttribute('aria-haspopup', 'true');
-  var textnode = document.createTextNode(buttonName);  // Create a text node
-
-  var link = document.createElement('A');
-  link.className = buttonName;
-  link.href = href;
-
-  link.appendChild(textnode);
-  newItem.appendChild(link);
-
-  var list = document.getElementById('Navigation');
-  console.log("SETUP MAIN BUTTONS");
-  
-  list.insertBefore(newItem, list.childNodes[7]);
-}
 
 // Submit form de mover
 //DestQueueID
@@ -620,3 +477,86 @@ function closeTitcketCall() {
   document.getElementById('RichText').value = 'Solicitação atendida.';
   document.getElementById('submitRichText').click();
 }
+
+
+// function highlightUnreadedArticles() {
+  //   //Na página AgentTicketZoom, tem uma estrela, mas não quero destacá-la
+  //   //por isso essa consulta se o parent dela tem a classe Last
+  
+  
+  //   if ($('.UnreadArticles').parent().attr('class') != 'Last') {
+  //     tds = $('.UnreadArticles').parent().parent().children();
+  //     tds.each(
+  //       function(index){
+  //         if ($(this).parent().attr('class') == 'MasterAction Even' || $(this).parent().attr('class') == 'MasterAction Even Last') {
+  //           $(this).css('background', '#6FCEC3');
+  //         }else{
+  //           if ($(this).parent().attr('class') == 'MasterAction'){
+  //             $(this).css('background', '#93E1D8');
+  //           }
+  //         }
+  //       }
+  //     );
+  //   }
+  // }
+
+// function insertStyle() {
+//   //$('#Header').css('height', '110px');
+//   $('#NavigationContainer').css('height', '70px');
+//   $('#Navigation').css('width', '100%');
+// }
+
+// function setupRowButtons() {
+//   setupMainButtons('Fechados', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente');
+//   setupMainButtons('Final-06', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206');
+//   setupMainButtons('Final-05', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205');
+//   setupMainButtons('Final-04', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004');
+//   setupMainButtons('Final-ZERO', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO');
+//   insertStyle();
+
+// }
+
+// //Setup main setupButtons
+// function setupMainButtons(buttonName, href) {
+//   var newItem = document.createElement('LI');
+//   newItem.className = 'CanDrag Even ui-sortable-handle';
+//   newItem.setAttribute('aria-controls', 'nav-Survey-container');
+//   newItem.setAttribute('aria-expanded', 'false');
+//   newItem.setAttribute('aria-haspopup', 'true');
+//   var textnode = document.createTextNode(buttonName);  // Create a text node
+
+//   var link = document.createElement('A');
+//   link.className = buttonName;
+//   link.href = href;
+
+//   link.appendChild(textnode);
+//   newItem.appendChild(link);
+
+//   var list = document.getElementById('Navigation');
+//   console.log("SETUP MAIN BUTTONS");
+  
+//   list.insertBefore(newItem, list.childNodes[7]);
+// }
+
+// function identifyTicketAndRemoveTr(){
+    
+//     var count = 0
+//     $('tr.MasterAction').each(function(index){
+//       ticket = $(this)[0].children[3].children[0].innerText
+//       changedTicket = ticket
+      
+//       for(i=0; i<6; i++){
+//         if(changedTicket.slice(-1) === '0') {
+//           changedTicket = changedTicket.substr(0, changedTicket.length - 1);
+//         }
+//       }
+
+//       if (changedTicket.slice(-1) != '4' && changedTicket.slice(-1) != '5' && changedTicket.slice(-1) != '6'){
+//         $(this).remove()
+//       }else{
+//         count += 1;
+//       }
+//     })
+
+//     recalculatePaginationNumber(count);
+// }

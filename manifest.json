@@ -53,21 +53,19 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*", "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"], 
-      "js": ["otrsScript.js"]
-    },
-    {
-      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"], 
-      "css": ["style.css"],
-      "run_at": "document_end"
-    },
-    {
-      "matches": ["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
-      "js": ["login.js"]
-    },
-    {
-    "matches":["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*", "http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
-    "js":["thirdParty/jquery.js", "thirdParty/attrchange.js"],
+    "matches":["http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl*"],
+
+    "js":[
+      "thirdParty/jquery.js",
+      "thirdParty/attrchange.js",
+      "app/controllers/Router.js",
+      "app/views/MenuView.js",
+      "app/models/Button.js",
+      "otrsScript.js", 
+      "login.js"
+    ],
+
+    "css": ["style.css"],
     "run_at": "document_end"
     }
   ],
