@@ -17,7 +17,6 @@ function readArticleByTicket(ticket){
 
 function beginScript() {
     router.init();
-    menuView.setupRowButtons();
 }
 
 // function setupUnblock(){
