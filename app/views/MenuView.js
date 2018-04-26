@@ -5,6 +5,7 @@ class MenuView {
     }
 
     setupRowButtons() {
+        
         this._addButton('Fechados', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Fechados%20Hoje%20%2F%20por%20Atendente');
         this._addButton('Final-06', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206');
         this._addButton('Final-05', 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205');
@@ -14,12 +15,6 @@ class MenuView {
     }
 
 
-    //Change feature name function
-    changeFeatureName(tag, name, innerHTML) {
-        tagFound = findElementsByTagNameAndTextContent(tag, name);
-        tagFound.innerHTML = innerHTML;
-    }
-
     //Fechar fechar chamado
     changeProperty() {
         document.getElementById('NewOwnerID').value = 22;
@@ -27,102 +22,6 @@ class MenuView {
             .value = 'Alterei a propriedade do chamado para JOSE.CAVALCANTE.';
 
         document.getElementById('submitRichText').click();
-    }
-
-    // setup buttons and new actions
-    setupButtonsAndActions() {
-        changeFeatureName('a', 'Proprietário', '<b>TORNAR-SE PROPRIETÁRIO</b>');
-        changeFeatureName('a', 'Fechar', '<b>FINALIZAR</b>');
-        createButonMover('GIRS', 14, 'highlight-out')
-        createButonMover('BANCADA', 10)
-        createButonMover('CIRO', 29)
-        createButonMover('LEANDRO', 28)
-        createButtonRespostaEmBranco();
-        createButton('INICIAR ATENDIMENTO');
-    }
-
-    createButton(buttonName) {
-        var newItem = document.createElement('LI');       // Create a <li> node
-        var textnode = document.createTextNode(buttonName);  // Create a text node
-
-        var url = window.location.href;
-        var id = getAllUrlParams(url)
-
-
-        var link = document.createElement('A');
-        link.className = 'moverGirsLink highlight-start';
-        link.href = 'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketNote;TicketID=' + id.ticketid + '#iniciar-atendimento';
-
-        var bold = document.createElement('B');
-
-        link.appendChild(bold);
-        bold.appendChild(textnode);
-        newItem.appendChild(link);
-
-        var list = document.getElementsByClassName('Actions');
-        list[0].insertBefore(newItem, list[0].childNodes[17]);
-    }
-
-    getAllUrlParams(url) {
-
-        // get query string from url (optional) or window
-        var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
-
-        // we'll store the parameters here
-        var obj = {};
-
-        // if query string exists
-        if (queryString) {
-
-            // stuff after # is not part of query string, so get rid of it
-            queryString = queryString.split('#')[0];
-
-            // split our query string into its component parts
-            var arr = queryString.split(';');
-
-            for (var i = 0; i < arr.length; i++) {
-                // separate the keys and the values
-                var a = arr[i].split('=');
-
-                // in case params look like: list[]=thing1&list[]=thing2
-                var paramNum = undefined;
-                var paramName = a[0].replace(/\[\d*\]/, function (v) {
-                    paramNum = v.slice(1, -1);
-                    return '';
-                });
-
-                // set parameter value (use 'true' if empty)
-                var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
-
-                // (optional) keep case consistent
-                paramName = paramName.toLowerCase();
-                paramValue = paramValue.toLowerCase();
-
-                // if parameter name already exists
-                if (obj[paramName]) {
-                    // convert value to array (if still string)
-                    if (typeof obj[paramName] === 'string') {
-                        obj[paramName] = [obj[paramName]];
-                    }
-                    // if no array index number specified...
-                    if (typeof paramNum === 'undefined') {
-                        // put the value on the end of the array
-                        obj[paramName].push(paramValue);
-                    }
-                    // if array index number specified...
-                    else {
-                        // put the value at that index number
-                        obj[paramName][paramNum] = paramValue;
-                    }
-                }
-                // if param name doesn't exist yet, set it
-                else {
-                    obj[paramName] = paramValue;
-                }
-            }
-        }
-
-        return obj;
     }
 
     _setupUnblock() {
@@ -202,25 +101,6 @@ class MenuView {
         document.getElementById('ArticleTypeID').value = 1;
         document.getElementById('submitRichText').click();
     }
-    //Function setup buttons and new actions
-    setupButtonsAndActions() {
-        changeFeatureName('a', 'Proprietário', '<b>TORNAR-SE PROPRIETÁRIO</b>');
-        changeFeatureName('a', 'Fechar', '<b>FINALIZAR</b>');
-        createButonMover('GIRS', 14, 'highlight-out')
-        createButonMover('BANCADA', 10)
-        createButonMover('CIRO', 29)
-        createButonMover('LEANDRO', 28)
-        createButtonRespostaEmBranco();
-        createButton('INICIAR ATENDIMENTO');
-    }
-
-    changeProperty() {
-        document.getElementById('NewOwnerID').value = 22;
-        document.getElementById('RichText')
-            .value = 'Alterei a propriedade do chamado para JOSE.CAVALCANTE.';
-
-        document.getElementById('submitRichText').click();
-    }
 
     closeTitcketCall() {
         document.getElementById('RichText').value = 'Solicitação atendida.';
@@ -234,7 +114,7 @@ class MenuView {
     onReloadCheck() {
 
         //JSON Array Object
-        unreadArticlesJSON = [];
+        let unreadArticlesJSON = [];
 
         //Populate the JSON Array
         $('td.UnreadArticles').parent().each(function (index) {
@@ -244,11 +124,13 @@ class MenuView {
             })
         })
 
-        urls = [
+        let urls = [
             'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%2004',
             'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%205',
             'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%206'
         ]
+
+        var pageNumber = 0;
 
         if (location.href == urls[0]) {
             pageNumber = 4;
@@ -279,7 +161,7 @@ class MenuView {
 
     reloadPeriodically() {
 
-        miliseconds = 2 * 60000;
+        let miliseconds = 2 * 60000;
 
         setInterval(function () {
             window.location.reload();
@@ -291,10 +173,10 @@ class MenuView {
 
         var count = 0
         $('tr.MasterAction').each(function (index) {
-            ticket = $(this)[0].children[3].children[0].innerText
-            changedTicket = ticket
+            let ticket = $(this)[0].children[3].children[0].innerText
+            let changedTicket = ticket
 
-            for (i = 0; i < 6; i++) {
+            for (let i = 0; i < 6; i++) {
                 if (changedTicket.slice(-1) === '0') {
                     changedTicket = changedTicket.substr(0, changedTicket.length - 1);
                 }
@@ -307,7 +189,7 @@ class MenuView {
             }
         })
 
-        recalculatePaginationNumber(count);
+        this.recalculatePaginationNumber(count);
     }
 
     recalculatePaginationNumber(count) {
@@ -320,7 +202,7 @@ class MenuView {
         //por isso essa consulta se o parent dela tem a classe Last
 
         if ($('.UnreadArticles').parent().attr('class') != 'Last') {
-            tds = $('.UnreadArticles').parent().parent().children();
+            let tds = $('.UnreadArticles').parent().parent().children();
             tds.each(
                 function (index) {
                     if ($(this).parent().attr('class') == 'MasterAction Even' || $(this).parent().attr('class') == 'MasterAction Even Last') {

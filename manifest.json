@@ -61,6 +61,7 @@
       "app/controllers/Router.js",
       "app/views/MenuView.js",
       "app/models/Button.js",
+      "app/views/ButtonView.js",
       "otrsScript.js", 
       "login.js"
     ],

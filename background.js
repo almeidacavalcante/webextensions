@@ -200,12 +200,6 @@ function notify(message){
         'http://srv-helpdesk.mp.rn.gov.br/otrs/index.pl?Action=AgentTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=Final%20ZERO'
     ]
 
-    //TODO: To make it OFFLINE
-    // authorizedUrls = [
-    //     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2004.html',
-    //     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2005.html',
-    //     'file:///home/almeida/webextensions/lucifer-plug-in/pages/Procurar%20-%20Chamado%20-%20AtendeMP%20-%2006.html'
-    // ]
 
     chrome.tabs.query({},function(tabs){
         tabs.forEach(function(tab){

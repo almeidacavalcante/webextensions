@@ -2,6 +2,7 @@ class RouterMap{
 
     constructor(){
         this._menuView = new MenuView();
+        this._buttonView = new ButtonView();
         this._functions = [];
         this._context = [];
     }
@@ -56,7 +57,7 @@ class RouterMap{
 
         if( route.includes(monitoredUrls[7])) {
             this._menuView.highlightUnreadedArticles();
-            this._menuView.setupButtonsAndActions();
+            this._buttonView.setupButtonsAndActions();
             this._menuView.setupRowButtons();
             return;
         }
